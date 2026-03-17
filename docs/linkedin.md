@@ -8,19 +8,17 @@
 
 ## Current Post
 
-Just shipped a major update to Tic-Trap-Toe.
+Just shipped another update to Tic-Trap-Toe.
 
-Tic-tac-toe is a solved game, so I experimented with changing the format. The game runs on a rotating cube with six independent boards. As the cube spins, faces move toward you, become playable, then rotate away — the available boards are always changing. Win three faces to win the match.
+Three new things:
 
-A few things I added since the first version:
+**Draw effect.** When a face ties, three shockwave rings burst outward from the surface with additive glow, the cube rattles with 5 fast chirped X-axis shakes (gaps between each shake shorten), and a soft bass-drum poof fires with short reverb. All synthesized — no audio files.
 
-**Adaptive AI across rounds.** The computer starts at Rookie and gets smarter every time you win a face — and that difficulty carries across rounds. Win a match, hit Next Round, and the AI picks up where it left off. Five levels total, capping at Unbeatable: full minimax, provably optimal. You can't beat it, only draw. Reset Game is the only way back to Rookie.
+**Between-rounds free rotation.** After a match ends, you can click and drag the cube to spin it freely in any direction — rotate it, flip it, look at every face. It deactivates the moment you hit Next Round or Reset Game.
 
-**Adaptive cube steering.** As faces get claimed, the cube stops giving equal time to all six sides. When three or fewer faces remain, the rotation biases toward the unfinished ones — arriving at those angles faster, lingering there longer. The fewer faces left, the stronger the pull. It never stops spinning; it just stops being equally fair to boards that are already done.
+**Tiebreaker.** If all six faces resolve without anyone reaching 3 wins, the player with the most faces takes the match. If it's equal, it's a draw.
 
-**Multi-round progression.** Win a match, hit Next Round. Boards reset, difficulty doesn't. The game keeps escalating until you reset everything.
-
-Built with Three.js and vanilla JavaScript. Audio synthesized with the Web Audio API — no audio files.
+Built with Three.js and vanilla JavaScript. Zero build step, zero audio files, zero dependencies beyond the CDN importmap.
 
 🎮 GitHub: https://lnkd.in/eBSCqf6G
 🌐 Portfolio: https://pvblocordero.com
@@ -33,5 +31,6 @@ Built with Three.js and vanilla JavaScript. Audio synthesized with the Web Audio
 
 | Date | What changed |
 |---|---|
+| 2026-03-16 | Draw shockwave rings + chirped jiggle + bass poof, between-rounds free-rotate drag, tiebreaker logic |
 | 2026-03-15 | Adaptive AI (5 levels + minimax), multi-round progression, adaptive cube steering, round label, score 3D shadow, Next Round button |
 | Prior | Initial launch — 6-face rotating cube, 3D title, confetti, holographic won-face, synthesized audio |

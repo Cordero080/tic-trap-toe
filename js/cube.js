@@ -25,7 +25,13 @@ import {
   makeMove,
   getComputerMove,
 } from "./app.js";
-import { playClick, playThud, playRobotVoice, playMatchWin } from "./audio.js";
+import {
+  playClick,
+  playThud,
+  playRobotVoice,
+  playMatchWin,
+  playPoof,
+} from "./audio.js";
 
 /* ── Board constants ── */
 const S = 9;
@@ -79,11 +85,29 @@ const cellSlabs = Array.from({ length: 6 }, () => new Array(9).fill(null));
 const wonOverlays = []; // { mesh, mat, fg, t } — holographic won-face planes
 const wonLines = []; // { mesh, mat, fg } — golden 3-D win bars
 const confetti = []; // { mesh, mat, vel, rx, ry, rz, life, maxLife }
+const shockwaves = []; // { mesh, mat, life, maxLife } — expanding draw rings
+
+// Draw jiggle — 5 fast chirped X-axis shakes, gaps incrementally shorten
+// jiggleT counts DOWN from JIGGLE_DUR to 0; active when > 0
+const JIGGLE_DUR = 0.52;
+let jiggleT = 0;
+
+// Between-rounds free rotation — set true when matchOver, false on reset/next-round
+let interactiveMode = false;
 
 // Match-over rotation capture (reset each new game)
 let matchOverT = -1;
 let frozenRotY = 0;
 let frozenRotX = 0;
+
+// Accumulated Y rotation with direction flips
+let rotY = 0;
+let rotVelY = 0.22;
+
+// X-axis bias — shifts the center of the sine oscillation toward the top or
+// bottom face when one of them is the last remaining active face.
+// Positive = tilt toward bottom face, negative = tilt toward top face.
+let xOffset = 0;
 
 /* ── Cylinder helper — builds a capped cylinder between two points ── */
 function cyl(a, b, mat, r = 0.06) {
@@ -498,6 +522,41 @@ export function onFaceWon(fi, ci) {
   _animateScoreCb(winner);
 }
 
+/* ── onFaceDraw — shockwave + gravitational bounce when a face ties ── */
+export function onFaceDraw(fi) {
+  cube.updateWorldMatrix(true, true);
+  const faceNormal = NORMALS[fi].clone().applyQuaternion(cube.quaternion);
+  const faceCenter = new THREE.Vector3();
+  faceGroups[fi].getWorldPosition(faceCenter);
+
+  // Three rings burst outward from the face surface, staggered in time.
+  // Each ring starts at ~face size (scale 1 = S/2 radius) and expands to 3×.
+  // Offset slightly along face normal so they sit just above the face surface.
+  const surfaceOffset = faceNormal.clone().multiplyScalar(0.25);
+  for (let i = 0; i < 3; i++) {
+    const colors = [0xffffff, 0xaaaaff, 0x6655ff];
+    const mat = new THREE.MeshBasicMaterial({
+      color: colors[i],
+      transparent: true,
+      opacity: 1,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    // Ring sized to roughly match the face — inner/outer give it visible thickness
+    const geo = new THREE.RingGeometry(S * 0.28, S * 0.42, 48);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(faceCenter).add(surfaceOffset);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), faceNormal);
+    _scene.add(mesh);
+    shockwaves.push({ mesh, mat, life: -i * 0.1, maxLife: 0.55 });
+  }
+
+  // Trigger 5-jiggle chirp shake
+  jiggleT = JIGGLE_DUR;
+  playPoof();
+}
+
 /* ── triggerComputer — schedules AI move 500 ms after the player's move ── */
 export function triggerComputer(fi) {
   setTimeout(() => {
@@ -506,7 +565,10 @@ export function triggerComputer(fi) {
     if (move >= 0) {
       makeMove(fi, move);
       syncMarks();
-      if (!prevWinner && faceStates[fi].winner) onFaceWon(fi, move);
+      if (!prevWinner && faceStates[fi].winner) {
+        if (faceStates[fi].winner === "draw") onFaceDraw(fi);
+        else onFaceWon(fi, move);
+      }
     }
   }, 500);
 }
@@ -555,12 +617,50 @@ export function resetCubeVisuals() {
   }
   wonLines.length = 0;
 
-  // Reset match-over rotation capture
+  // Clean up draw shockwaves
+  for (const sw of shockwaves) {
+    _scene.remove(sw.mesh);
+    sw.mat.dispose();
+    sw.mesh.geometry.dispose();
+  }
+  shockwaves.length = 0;
+
+  // Reset jiggle
+  jiggleT = 0;
+  cube.position.x = 0;
+
+  // Reset match-over rotation capture and accumulated spin state
   matchOverT = -1;
+  rotY = 0;
+  rotVelY = 0.22;
+  xOffset = 0;
 
   hoverMeshes.forEach((hv) => {
     hv.visible = false;
   });
+
+  // Exit interactive mode so auto-rotation resumes on the new round
+  interactiveMode = false;
+}
+
+/* ── setInteractiveMode / applyDrag — free-rotation between rounds ── */
+export function setInteractiveMode(on) {
+  interactiveMode = on;
+}
+
+// dx/dy in pixels; sensitivity converts to radians. Rotates around world axes
+// (horizontal drag = Y axis, vertical drag = X axis) for a natural trackball feel.
+export function applyDrag(dx, dy) {
+  const s = 0.006; // rad per pixel — tweak for feel
+  const qY = new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(0, 1, 0),
+    dx * s,
+  );
+  const qX = new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(1, 0, 0),
+    dy * s,
+  );
+  cube.quaternion.premultiply(qY).premultiply(qX);
 }
 
 /* ── updateCube — called every frame from tick() ──
@@ -574,13 +674,19 @@ export function resetCubeVisuals() {
  *  - Confetti particle physics (velocity, gravity, fade-out)
  * ── */
 export function updateCube(dt, t) {
-  /* Cube rotation */
-  if (matchOver) {
+  /* Cube rotation — skipped entirely when user is in free-rotate mode */
+  if (interactiveMode) {
+    // quaternion is driven by applyDrag(); just ensure scale is neutral
+    cube.scale.setScalar(1);
+  } else if (matchOver) {
     if (matchOverT < 0) {
       // Capture rotation at the exact moment of match win
       matchOverT = t;
-      frozenRotY = cube.rotation.y;
+      frozenRotY = rotY;
       frozenRotX = cube.rotation.x;
+      // Snap jiggle back to rest immediately
+      jiggleT = 0;
+      cube.position.x = 0;
     }
     const age = t - matchOverT;
     const slow = Math.exp(-age * 2.0); // exponential deceleration
@@ -592,63 +698,48 @@ export function updateCube(dt, t) {
   } else {
     matchOverT = -1;
 
-    // ── Adaptive steering — bias rotation toward unfinished faces ──────────
-    // Collect indices of faces that are still in play (no winner yet)
+    // Collect indices of faces still in play (no winner, no draw)
     const activeIdxs = faceStates.reduce((acc, f, i) => {
       if (!f.winner) acc.push(i);
       return acc;
     }, []);
+    const activeCount = activeIdxs.length; // used for X tilt and xBias below
 
-    const baseY = t * 0.22;
-    const baseX = Math.sin(t * 0.13) * 0.48;
+    // ── Y rotation — constant speed with occasional direction flip ───────────
+    // Math.sign(Math.sin(...)) sits at +1 or -1 for long stretches, flipping
+    // every ~35s. The lerp smooths the flip into a ~0.4s reversal, not a crawl.
+    const targetVel = 0.22 * (Math.sign(Math.sin(t * 0.09)) || 1);
+    rotVelY += (targetVel - rotVelY) * Math.min(1, 8.0 * dt);
+    rotY += rotVelY * dt;
+    cube.rotation.y = rotY;
 
-    if (activeIdxs.length > 0 && activeIdxs.length <= 3) {
-      // Each side face has an ideal rotation.y where it fully faces the camera.
-      // Top (fi=2) and bottom (fi=3) are controlled by rotation.x, handled below.
-      const IDEAL_Y = { 0: 0, 1: Math.PI, 4: -Math.PI / 2, 5: Math.PI / 2 };
+    const bottomActive = activeIdxs.includes(3);
+    const topActive = activeIdxs.includes(2);
 
-      // Find the active side face whose ideal Y is currently closest to baseY.
-      // "Closest" accounts for multiple full rotations so the cube never snaps.
-      let closestDelta = null;
-      let minGap = Infinity;
-      for (const fi of activeIdxs) {
-        if (!(fi in IDEAL_Y)) continue;
-        const raw = IDEAL_Y[fi];
-        // Shift the ideal into the same "period" as the current baseY
-        const n = Math.round((baseY - raw) / (2 * Math.PI));
-        const nearestIdeal = raw + n * 2 * Math.PI;
-        const delta = nearestIdeal - baseY;
-        if (Math.abs(delta) < minGap) {
-          minGap = Math.abs(delta);
-          closestDelta = delta;
-        }
-      }
-
-      // steerStrength by face count: subtle at 3, strong at 1.
-      // The tanh gives an S-curve: gentle near the target, firm further away.
-      // Effect: cube arrives at active-face angles faster and lingers there longer.
-      const STEER = [0, 1.2, 0.65, 0.28]; // indexed by activeIdxs.length
-      const steerStrength = STEER[activeIdxs.length] ?? 0;
-      const steer =
-        closestDelta !== null
-          ? steerStrength * Math.tanh(closestDelta * 0.6)
+    // Bias the oscillation center toward whichever top/bottom face is still active.
+    // Without this, the sine wave stays centered at 0 so top/bottom only ever get
+    // a glancing angle — never a full face-on view. This shifts the whole wave up
+    // (for bottom) or down (for top) so the face tilts properly into view.
+    // Both active at once → no bias, sine visits both equally.
+    // Values are higher now so the bottom actually reaches near face-on (~70°+).
+    const xBias = [0, 0.8, 0.55, 0.3][activeCount] ?? 0;
+    const targetXOffset =
+      bottomActive && !topActive
+        ? xBias
+        : topActive && !bottomActive
+          ? -xBias
           : 0;
+    xOffset += (targetXOffset - xOffset) * Math.min(1, 3.0 * dt);
 
-      cube.rotation.y = baseY + steer;
+    // X — large amplitude sine so bottom and top faces actually reach a proper
+    // viewing angle (1.1 rad ≈ 63°, face dot ~0.89). xOffset biases the center
+    // toward bottom or top when one of them is the last remaining active face.
+    cube.rotation.x = Math.sin(t * 0.13) * 1.1 + xOffset;
 
-      // Reduce X tilt so side faces stay in view longer.
-      // Exception: if a top or bottom face is still active, keep most of the tilt
-      // so those faces have a fair chance to show up too.
-      const hasTopBottom = activeIdxs.some((fi) => fi === 2 || fi === 3);
-      const xFactor = hasTopBottom ? 0.7 : activeIdxs.length / 6;
-      cube.rotation.x = baseX * xFactor;
-    } else {
-      // All 4–6 faces still active — standard free spin, no steering needed
-      cube.rotation.y = baseY;
-      cube.rotation.x = baseX;
-    }
-
-    cube.scale.setScalar(1);
+    // Z rotation at a third frequency — cube feels like it rolls onto a different axis
+    // periodically. 0.07 vs 0.13 vs 0.31 share no simple ratios so the full combination
+    // takes a very long time to feel repetitive.
+    cube.rotation.z = Math.sin(t * 0.07) * 0.22 + Math.sin(t * 0.19) * 0.1;
   }
 
   /* Rainbow frame + corner color cycling */
@@ -707,6 +798,37 @@ export function updateCube(dt, t) {
     o.mat.opacity = Math.min(0.72, o.t * 0.9);
     col.setHSL((t * 0.12 + o.t * 0.3) % 1, 0.9, 0.82);
     o.mat.color.copy(col);
+  }
+
+  /* Draw jiggle — chirped sine on X axis: 5 quick shakes, gaps shorten over time */
+  if (jiggleT > 0 && !matchOver) {
+    jiggleT = Math.max(0, jiggleT - dt);
+    const el = JIGGLE_DUR - jiggleT; // elapsed 0 → JIGGLE_DUR
+    // Chirp: phase = 20t + 28t² → frequency rises so peaks bunch up toward the end
+    // envelope: exp(-7t) so amplitude drops to ~2% by t=0.52
+    cube.position.x =
+      0.6 * Math.sin(20 * el + 28 * el * el) * Math.exp(-7 * el);
+  } else if (!matchOver) {
+    jiggleT = 0;
+    cube.position.x = 0;
+  }
+
+  /* Shockwave rings — expand outward and fade on draw */
+  for (let i = shockwaves.length - 1; i >= 0; i--) {
+    const sw = shockwaves[i];
+    sw.life += dt;
+    if (sw.life < 0) continue; // staggered delay not yet reached
+    const p = sw.life / sw.maxLife;
+    // Start at face size (scale 1) and expand to 3× — clearly coming off the surface
+    sw.mesh.scale.setScalar(1 + p * 2.2);
+    // Fade out — bright at start, gone by end
+    sw.mat.opacity = Math.max(0, (1 - p) * 0.85);
+    if (sw.life >= sw.maxLife) {
+      _scene.remove(sw.mesh);
+      sw.mat.dispose();
+      sw.mesh.geometry.dispose();
+      shockwaves.splice(i, 1);
+    }
   }
 
   /* Confetti particle simulation — velocity integration + gravity + fade */

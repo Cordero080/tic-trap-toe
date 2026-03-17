@@ -197,6 +197,59 @@ export function playRobotVoice(isMatchWin = false) {
   }
 }
 
+/* Soft bass-drum poof — sine pitch-drop + short reverb tail */
+export function playPoof() {
+  const ctx = getAudio();
+  const now = ctx.currentTime;
+
+  // Short room reverb (~0.55 s decay)
+  const irLen = Math.floor(ctx.sampleRate * 0.55);
+  const irBuf = ctx.createBuffer(2, irLen, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = irBuf.getChannelData(ch);
+    for (let i = 0; i < irLen; i++)
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / irLen, 2.2);
+  }
+  const reverb = ctx.createConvolver();
+  reverb.buffer = irBuf;
+  const wetGain = ctx.createGain();
+  wetGain.gain.value = 0.38;
+  reverb.connect(wetGain);
+  wetGain.connect(ctx.destination);
+
+  // Bass drum body — sine pitch drop 75 Hz → 28 Hz
+  const osc = ctx.createOscillator();
+  osc.frequency.setValueAtTime(75, now);
+  osc.frequency.exponentialRampToValueAtTime(28, now + 0.14);
+  const oscGain = ctx.createGain();
+  oscGain.gain.setValueAtTime(0.85, now);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+  osc.connect(oscGain);
+  oscGain.connect(ctx.destination);
+  oscGain.connect(reverb);
+  osc.start(now);
+  osc.stop(now + 0.28);
+
+  // Soft noise transient — low-passed thump texture
+  const nLen = Math.floor(ctx.sampleRate * 0.06);
+  const nBuf = ctx.createBuffer(1, nLen, ctx.sampleRate);
+  const nd = nBuf.getChannelData(0);
+  for (let i = 0; i < nLen; i++)
+    nd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / nLen, 2);
+  const nSrc = ctx.createBufferSource();
+  nSrc.buffer = nBuf;
+  const lpf = ctx.createBiquadFilter();
+  lpf.type = "lowpass";
+  lpf.frequency.value = 220;
+  const nGain = ctx.createGain();
+  nGain.gain.value = 0.28;
+  nSrc.connect(lpf);
+  lpf.connect(nGain);
+  nGain.connect(ctx.destination);
+  nGain.connect(reverb);
+  nSrc.start(now);
+}
+
 /* Deep resonant chord (A1, E2, A2, C#3) + metallic triangle shimmer */
 export function playMatchWin() {
   const ctx = getAudio();

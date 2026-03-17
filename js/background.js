@@ -33,10 +33,13 @@ import {
   initCube,
   syncMarks,
   onFaceWon,
+  onFaceDraw,
   triggerComputer,
   updateCube,
   getActiveFaceIdx,
   resetCubeVisuals,
+  setInteractiveMode,
+  applyDrag,
 } from "./cube.js";
 import { initTitle, updateTitle } from "./title.js";
 
@@ -109,12 +112,37 @@ const raycaster = new THREE.Raycaster();
 const ptr = new THREE.Vector2();
 const OFS = 2.5 + 0.12; // CELL + GAP — matches cube.js constants
 
+// Free-rotate drag state — active only when matchOver is true
+let isDragging = false;
+let dragX = 0;
+let dragY = 0;
+
 function setPtr(e) {
   ptr.x = (e.clientX / window.innerWidth) * 2 - 1;
   ptr.y = (e.clientY / window.innerHeight) * -2 + 1;
 }
 
+canvas.addEventListener("mousedown", (e) => {
+  if (!matchOver) return;
+  isDragging = true;
+  dragX = e.clientX;
+  dragY = e.clientY;
+  setInteractiveMode(true);
+  canvas.style.cursor = "grabbing";
+});
+
+canvas.addEventListener("mouseup", () => {
+  if (!isDragging) return;
+  isDragging = false;
+  canvas.style.cursor = matchOver ? "grab" : "default";
+});
+
+canvas.addEventListener("mouseleave", () => {
+  isDragging = false;
+});
+
 canvas.addEventListener("click", (e) => {
+  if (matchOver) return; // no moves during free-rotate phase
   setPtr(e);
   raycaster.setFromCamera(ptr, camera);
   const hits = raycaster.intersectObjects(hitPlaneMeshes);
@@ -125,7 +153,10 @@ canvas.addEventListener("click", (e) => {
   const prevWinner = faceStates[fi].winner;
   if (makeMove(fi, ci)) {
     syncMarks();
-    if (!prevWinner && faceStates[fi].winner) onFaceWon(fi, ci);
+    if (!prevWinner && faceStates[fi].winner) {
+      if (faceStates[fi].winner === "draw") onFaceDraw(fi);
+      else onFaceWon(fi, ci);
+    }
     if (vsComputer && !faceStates[fi].winner && faceStates[fi].turn === "O") {
       triggerComputer(fi);
     }
@@ -133,6 +164,25 @@ canvas.addEventListener("click", (e) => {
 });
 
 canvas.addEventListener("mousemove", (e) => {
+  // Free-rotate drag — takes priority over hover when matchOver
+  if (isDragging && matchOver) {
+    const dx = e.clientX - dragX;
+    const dy = e.clientY - dragY;
+    dragX = e.clientX;
+    dragY = e.clientY;
+    applyDrag(dx, dy);
+    return;
+  }
+
+  // Normal hover — show cell highlight when a playable cell is under cursor
+  if (matchOver) {
+    canvas.style.cursor = "grab";
+    hoverMeshes.forEach((hv) => {
+      hv.visible = false;
+    });
+    return;
+  }
+
   setPtr(e);
   raycaster.setFromCamera(ptr, camera);
   const hits = raycaster.intersectObjects(hitPlaneMeshes);
@@ -166,8 +216,15 @@ function setRoundLabel() {
   }
 }
 
+function exitInteractiveMode() {
+  isDragging = false;
+  setInteractiveMode(false);
+  canvas.style.cursor = "default";
+}
+
 // Full reset — clears difficulty back to Rookie and back to round 1
 function doReset() {
+  exitInteractiveMode();
   resetAll();
   resetCubeVisuals();
   scoreXEl.classList.remove("score-match-win");
@@ -179,6 +236,7 @@ function doReset() {
 
 // Partial reset — keeps difficulty so the AI stays at the earned level
 function doNextRound() {
+  exitInteractiveMode();
   resetRound();
   resetCubeVisuals();
   scoreXEl.classList.remove("score-match-win");
@@ -213,7 +271,10 @@ function updateMessage() {
       nextRoundBtn.style.display = "inline-block";
       nextRoundShown = true;
     }
-    msgEl.textContent = `${matchWinner} wins the match!`;
+    msgEl.textContent =
+      matchWinner === "draw"
+        ? `All faces done — it's a draw!`
+        : `${matchWinner} wins the match!`;
     return;
   }
   nextRoundShown = false; // reset guard for next match

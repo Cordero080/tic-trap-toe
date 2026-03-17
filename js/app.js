@@ -79,6 +79,16 @@ export function makeMove(faceIdx, cellIdx) {
   } else {
     face.turn = face.turn === "X" ? "O" : "X";
   }
+
+  // If all 6 faces are now resolved and nobody hit TARGET, most wins takes the match.
+  // This handles the case where enough draws pile up that 3 wins becomes unreachable.
+  if (!matchOver && faceStates.every((f) => f.winner !== null)) {
+    matchOver = true;
+    if (score.X > score.O) matchWinner = "X";
+    else if (score.O > score.X) matchWinner = "O";
+    else matchWinner = "draw";
+  }
+
   return true;
 }
 

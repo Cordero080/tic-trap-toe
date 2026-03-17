@@ -43,6 +43,12 @@ There's no timer. No forced turn order between faces. **If you can see the cells
 - The score scrambles before landing on the new number
 - On match win: score burns yellow-red, cube decelerates and pulses twice
 
+## When a Face Ties
+
+- Three shockwave rings burst outward from the tied face surface with additive glow
+- The cube rattles with 5 fast chirped X-axis shakes (gaps between each shake shorten)
+- A soft bass-drum poof fires with short reverb
+
 ![Golden win bar](assets/screenshots/gold-win-bar.png)
 ![Confetti burst](assets/screenshots/confetti-face-win.png)
 ![Match win score](assets/screenshots/match-win-score.jpg)
