@@ -321,7 +321,7 @@ h2 {
 
 .score-label {
   font-family: "ClashDisplay", sans-serif;
-  font-weight: 500; /* thinner — was Axion which looked too heavy */
+  font-weight: 500;
   font-size: 0.85rem;
   letter-spacing: 0.1em;
   opacity: 0.55;
@@ -461,4 +461,154 @@ h2 {
   label {
     font-size: 0.8rem;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DARK MODE — holographic black with studio center light
+   Activated by adding class "dark" to <body>
+   ═══════════════════════════════════════════════════════════ */
+
+/* --- Holographic shimmer keyframes (used by dark body::before) --- */
+@keyframes holo-shift {
+  0% {
+    background-position: 0% 0%;
+  }
+  33% {
+    background-position: 100% 50%;
+  }
+  66% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+body.dark {
+  background-color: #08080f;
+  color: #e0d0ff;
+  overflow: hidden;
+}
+
+/* Studio spotlight — bright center, deep vignette edges */
+body.dark::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    /* Center studio hotspot — warm soft glow behind the cube */
+    radial-gradient(
+      ellipse 55% 50% at 50% 50%,
+      rgba(200, 180, 255, 0.14) 0%,
+      transparent 60%
+    ),
+    /* Subtle cyan accent upper-right */
+    radial-gradient(
+        ellipse at 75% 15%,
+        rgba(0, 200, 255, 0.07) 0%,
+        transparent 45%
+      ),
+    /* Magenta accent lower-left */
+    radial-gradient(
+        ellipse at 25% 85%,
+        rgba(255, 0, 180, 0.06) 0%,
+        transparent 45%
+      ),
+    /* Deep purple mid-layer */
+    radial-gradient(
+        ellipse at 50% 50%,
+        rgba(60, 0, 120, 0.12) 0%,
+        transparent 70%
+      ),
+    /* Dark vignette — pushes edges to near-black */
+    radial-gradient(
+        ellipse 70% 65% at 50% 50%,
+        transparent 40%,
+        rgba(0, 0, 8, 0.7) 100%
+      );
+  background-size:
+    200% 200%,
+    200% 200%,
+    200% 200%,
+    100% 100%,
+    100% 100%;
+  animation: holo-shift 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* Static vignette overlay — extra edge darkening for depth */
+body.dark::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: radial-gradient(
+    ellipse 60% 55% at 50% 48%,
+    transparent 30%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+}
+
+/* Text gradient — lighter for dark bg */
+body.dark h1,
+body.dark h2 {
+  background: linear-gradient(
+    360deg,
+    #c8a0ff 0%,
+    #80b0ff 25%,
+    #60ddff 50%,
+    #d080ff 75%,
+    #c8a0ff 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 2px 8px rgba(160, 100, 255, 0.25);
+}
+
+body.dark .score-label {
+  color: #c0a0ff;
+}
+
+body.dark .score-num {
+  color: #e0d0ff;
+  text-shadow:
+    1px 1px 0 rgba(160, 80, 255, 0.4),
+    2px 2px 0 rgba(140, 60, 255, 0.3),
+    3px 3px 0 rgba(120, 40, 255, 0.2),
+    4px 4px 0 rgba(100, 20, 255, 0.15),
+    5px 5px 10px rgba(100, 0, 255, 0.35);
+}
+
+body.dark .copyright {
+  color: #c0a0ff;
+}
+
+body.dark #vs-computer {
+  accent-color: #ff2200;
+}
+
+body.dark label {
+  color: #ff4444;
+}
+
+/* Dark-mode theme toggle button */
+#theme-toggle {
+  position: fixed;
+  bottom: 10px;
+  left: 16px;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  z-index: 10;
+  padding: 4px;
+  line-height: 1;
+}
+#theme-toggle:hover {
+  opacity: 1;
 }

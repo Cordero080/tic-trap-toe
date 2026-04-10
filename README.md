@@ -86,7 +86,19 @@ As faces get claimed, the cube stops giving equal time to all six sides. When 3 
   - `title.js` — extruded 3-D title with foreshortening tilt
   - `audio.js` — fully synthesized Web Audio (zero audio files)
   - `background.js` — scene, camera, input, DOM, round/difficulty state, tick loop
-- CSS — conic-gradient button glow, glitch score animation, diagonal-stripe match-win, rainbow round label
+- CSS — conic-gradient button glow, glitch score animation, diagonal-stripe match-win, rainbow round label, dark mode with holographic shimmer
+
+---
+
+## Dark Mode
+
+Toggle the 🌙 button (bottom-left corner). Persists via `localStorage`.
+
+- **Background** — holographic black with animated iridescent shimmer and deep vignette
+- **Cube** — each face becomes a unique dark jewel tone (wine, navy, violet, emerald, amber, slate) with high metalness
+- **Title** — each letter gets its own color matching the cube palette, lit by a dramatic focused spotlight
+- **Borders** — rainbow cycling preserved, slightly desaturated for elegance
+- **Lighting** — frontal studio spotlight, dimmed ambient, repositioned sun for dramatic depth
 
 ---
 

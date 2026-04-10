@@ -109,6 +109,10 @@ let rotVelY = 0.22;
 // Positive = tilt toward bottom face, negative = tilt toward top face.
 let xOffset = 0;
 
+/* ── Dark-mode material refs — set by initCube, toggled by setDarkMode ── */
+let _cubeFaceMats = null; // array of 6 MeshStandardMaterials (one per box face)
+let _lineMat = null;
+
 /* ── Cylinder helper — builds a capped cylinder between two points ── */
 function cyl(a, b, mat, r = 0.06) {
   const dir = b.clone().sub(a);
@@ -154,19 +158,21 @@ export function initCube(scene, animateScoreCb) {
   cube = new THREE.Group();
   cube.position.y = -0.8; // nudge down so it sits centered between title and controls
   scene.add(cube);
-  cube.add(
-    new THREE.Mesh(
-      new THREE.BoxGeometry(S, S, S),
+  // 6 materials — one per BoxGeometry face (+X, -X, +Y, -Y, +Z, -Z)
+  _cubeFaceMats = Array.from(
+    { length: 6 },
+    () =>
       new THREE.MeshStandardMaterial({
         color: 0x020406,
         roughness: 0.65,
         metalness: 0.12,
       }),
-    ),
   );
+  cube.add(new THREE.Mesh(new THREE.BoxGeometry(S, S, S), _cubeFaceMats));
 
   /* Shared geometry / materials */
   const lineMat = new THREE.MeshBasicMaterial({ color: 0xf2f2ff });
+  _lineMat = lineMat;
   const hitMat = new THREE.MeshBasicMaterial({ visible: false });
   const hoverMat = new THREE.MeshBasicMaterial({
     color: 0x3513e1,
@@ -663,6 +669,28 @@ export function applyDrag(dx, dy) {
   cube.quaternion.premultiply(qY).premultiply(qX);
 }
 
+/* ── setDarkMode — each face gets a unique color in dark mode ── */
+const DARK_FACE_COLORS = [
+  0x2a0a1a, // +X right  — deep wine
+  0x0a1a2a, // -X left   — deep navy
+  0x1a0a2a, // +Y top    — deep violet
+  0x0a2a1a, // -Y bottom — deep emerald
+  0x2a1a0a, // +Z front  — deep amber
+  0x0a1020, // -Z back   — deep slate
+];
+let _isDark = false;
+export function setDarkMode(dark) {
+  _isDark = dark;
+  if (_cubeFaceMats) {
+    for (let i = 0; i < 6; i++) {
+      _cubeFaceMats[i].color.set(dark ? DARK_FACE_COLORS[i] : 0x020406);
+      _cubeFaceMats[i].metalness = dark ? 0.7 : 0.12;
+      _cubeFaceMats[i].roughness = dark ? 0.25 : 0.65;
+    }
+  }
+  if (_lineMat) _lineMat.color.set(dark ? 0xeeeadf : 0xf2f2ff);
+}
+
 /* ── updateCube — called every frame from tick() ──
  *
  *  Handles:
@@ -745,14 +773,26 @@ export function updateCube(dt, t) {
   /* Rainbow frame + corner color cycling */
   const col = new THREE.Color();
   const h = (t * 0.08) % 1;
-  frameMats.forEach((fm, i) => {
-    col.setHSL((h + i * 0.04) % 1, 1.0, 0.5);
-    fm.color.copy(col);
-  });
-  cornerMats.forEach((cm, i) => {
-    col.setHSL((h + i * 0.12) % 1, 1.0, 0.6);
-    cm.color.copy(col);
-  });
+  if (_isDark) {
+    // Dark mode: keep rainbow cycling but slightly desaturated for elegance
+    frameMats.forEach((fm, i) => {
+      col.setHSL((h + i * 0.04) % 1, 0.85, 0.5);
+      fm.color.copy(col);
+    });
+    cornerMats.forEach((cm, i) => {
+      col.setHSL((h + i * 0.12) % 1, 0.85, 0.6);
+      cm.color.copy(col);
+    });
+  } else {
+    frameMats.forEach((fm, i) => {
+      col.setHSL((h + i * 0.04) % 1, 1.0, 0.5);
+      fm.color.copy(col);
+    });
+    cornerMats.forEach((cm, i) => {
+      col.setHSL((h + i * 0.12) % 1, 1.0, 0.6);
+      cm.color.copy(col);
+    });
+  }
 
   /* Mark pop-in + ride on slab front face */
   for (let fi = 0; fi < 6; fi++) {

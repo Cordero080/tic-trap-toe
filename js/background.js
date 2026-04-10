@@ -40,8 +40,13 @@ import {
   resetCubeVisuals,
   setInteractiveMode,
   applyDrag,
+  setDarkMode as setCubeDark,
 } from "./cube.js";
-import { initTitle, updateTitle } from "./title.js";
+import {
+  initTitle,
+  updateTitle,
+  setDarkMode as setTitleDark,
+} from "./title.js";
 
 /* ── Renderer ── */
 const canvas = document.getElementById("bg-canvas");
@@ -51,7 +56,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 
 /* ── Scene ── */
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf2f2f8);
+const LIGHT_BG = 0xf2f2f8;
+const DARK_BG = 0x0d0d18;
+scene.background = new THREE.Color(LIGHT_BG);
 
 /* ── Camera ── */
 const camera = new THREE.PerspectiveCamera(
@@ -63,7 +70,8 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.z = 28;
 
 /* ── Lights ── */
-scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
 const sun = new THREE.DirectionalLight(0xffffff, 0.9);
 sun.position.set(5, 10, 10);
 scene.add(sun);
@@ -71,6 +79,10 @@ scene.add(sun);
 const titleLight = new THREE.DirectionalLight(0xffffff, 0.5);
 titleLight.position.set(0, 20, 15);
 scene.add(titleLight);
+// Studio spotlight — extra punch on the cube in dark mode (toggled by applyTheme)
+const studioLight = new THREE.PointLight(0xd0c0ff, 0, 60);
+studioLight.position.set(0, 2, 18);
+scene.add(studioLight);
 
 /* ── Score DOM elements ── */
 const scoreXEl = document.getElementById("score-x");
@@ -257,6 +269,33 @@ window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ── Dark-mode toggle ── */
+const themeBtn = document.getElementById("theme-toggle");
+
+function applyTheme(dark) {
+  document.body.classList.toggle("dark", dark);
+  scene.background.set(dark ? DARK_BG : LIGHT_BG);
+  themeBtn.textContent = dark ? "☀️" : "🌙";
+  // Studio light — dramatic frontal + top in dark mode
+  studioLight.intensity = dark ? 2.0 : 0;
+  ambientLight.intensity = dark ? 0.2 : 0.6;
+  sun.intensity = dark ? 1.4 : 0.9;
+  sun.position.set(dark ? 0 : 5, dark ? 12 : 10, dark ? 20 : 10);
+  // Invert 3-D materials
+  setCubeDark(dark);
+  setTitleDark(dark);
+  try {
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  } catch {}
+}
+
+// Restore saved preference
+applyTheme(localStorage.getItem("theme") === "dark");
+
+themeBtn.addEventListener("click", () => {
+  applyTheme(!document.body.classList.contains("dark"));
 });
 
 /* ── Message ── */
