@@ -23,7 +23,7 @@ export const faceStates = Array.from({ length: 6 }, () => ({
 export const score = { X: 0, O: 0 };
 export let matchOver = false;
 export let matchWinner = "";
-export let vsComputer = false;
+export let vsComputer = true;
 
 // difficulty — 0 to 4, increases each time X wins a face (across all rounds).
 // It never resets between rounds — only the Reset button sets it back to 0.

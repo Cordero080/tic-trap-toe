@@ -45,6 +45,7 @@ import {
 import {
   initTitle,
   updateTitle,
+  resizeTitle,
   setDarkMode as setTitleDark,
 } from "./title.js";
 
@@ -269,6 +270,7 @@ window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  resizeTitle();
 });
 
 /* ── Dark-mode toggle ── */
@@ -296,6 +298,30 @@ applyTheme(localStorage.getItem("theme") === "dark");
 
 themeBtn.addEventListener("click", () => {
   applyTheme(!document.body.classList.contains("dark"));
+});
+
+/* ── Landing overlay ── */
+const landingOverlay = document.getElementById("landing-overlay");
+document.getElementById("play-btn").addEventListener("click", () => {
+  // Cancel animation fill (which locks opacity:1) so the fade-out can take effect
+  landingOverlay.style.animation = "none";
+  landingOverlay.style.opacity = "0";
+  landingOverlay.style.pointerEvents = "none";
+  setTimeout(() => {
+    landingOverlay.style.display = "none";
+  }, 500);
+});
+
+/* ── About modal ── */
+const aboutModal = document.getElementById("about-modal");
+document.getElementById("about-btn").addEventListener("click", () => {
+  aboutModal.classList.add("visible");
+});
+document.getElementById("about-close").addEventListener("click", () => {
+  aboutModal.classList.remove("visible");
+});
+aboutModal.addEventListener("click", (e) => {
+  if (e.target === aboutModal) aboutModal.classList.remove("visible");
 });
 
 /* ── Message ── */

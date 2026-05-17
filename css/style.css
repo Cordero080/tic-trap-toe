@@ -89,6 +89,11 @@ h2 {
   gap: 12px;
 }
 
+/* vs-computer always on — hide toggle everywhere */
+.controls label {
+  display: none;
+}
+
 /* === Reset button — position: relative so ::before/::after glow escapes correctly === */
 #reset-btn {
   position: relative; /* must NOT be fixed — keeps pseudo-element z-index working */
@@ -425,6 +430,291 @@ h2 {
     4px 4px 8px rgba(255, 140, 0, 0.4);
 }
 
+/* ═══ Landing Overlay ═══════════════════════════════════════════════════════ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#landing-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 10, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fade-in 0.9s ease both;
+  transition: opacity 0.5s ease;
+}
+
+#landing-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* No card — text floats directly over the spinning cube */
+#landing-card {
+  text-align: center;
+  max-width: 460px;
+  width: 90%;
+  padding: 0 24px;
+}
+
+#landing-game-title {
+  font-family: "ClashDisplay", sans-serif;
+  font-weight: 700;
+  font-size: 3rem;
+  letter-spacing: 0.04em;
+  margin: 0 0 20px;
+  background: linear-gradient(
+    90deg,
+    #ff00cc,
+    #aa00ff,
+    #0055ff,
+    #00ccff,
+    #00ffaa,
+    #ccff00,
+    #ff6600,
+    #ff00cc
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbow-move 8s linear infinite;
+  filter: drop-shadow(0 0 18px rgba(120, 60, 255, 0.5));
+}
+
+#landing-tagline {
+  font-family: "ClashDisplay", sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  color: rgba(230, 215, 255, 0.95);
+  margin: 0 0 14px;
+  text-shadow: 0 0 20px rgba(140, 80, 255, 0.5);
+}
+
+#landing-desc {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1rem;
+  color: rgba(200, 185, 240, 0.85);
+  line-height: 1.65;
+  margin: 0 0 40px;
+}
+
+/* Play button — same conic-gradient engine as Reset Game */
+#play-btn {
+  position: relative;
+  background-color: #1a1919;
+  color: #fffdfd;
+  border: none;
+  padding: 12px 36px;
+  font-size: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: "Doto", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  -webkit-text-fill-color: #fdfdfd;
+}
+
+#play-btn::after,
+#play-btn::before {
+  content: "";
+  position: absolute;
+  height: 90%;
+  width: 100%;
+  background-image: conic-gradient(
+    from var(--angle),
+    transparent 3%,
+    rgb(21, 0, 255),
+    rgb(121, 60, 165),
+    rgb(1, 169, 191),
+    rgb(216, 56, 147),
+    rgb(68, 0, 255)
+  );
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: -1;
+  padding: 3px;
+  border-radius: 8px;
+  animation: 3s spin linear infinite;
+}
+
+#play-btn::before {
+  filter: blur(1.5rem);
+  opacity: 0.5;
+}
+
+#play-btn:hover {
+  box-shadow:
+    0 0 1px 1px #eae9e9,
+    0 0 5px 5px #523ee8;
+}
+
+/* ═══ About Button ═══════════════════════════════════════════════════════════ */
+
+#about-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: conic-gradient(
+    from var(--angle),
+    #00ff88,
+    #aaff44,
+    #00ffcc,
+    #44ff99,
+    #00ff88
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 10;
+  padding: 4px;
+  line-height: 1;
+  filter: drop-shadow(0 0 2px rgba(0, 255, 120, 0.7))
+    drop-shadow(0 0 10px rgba(0, 200, 80, 0.25));
+  animation: spin 7s linear infinite;
+  transition: filter 0.2s;
+}
+
+#about-btn:hover {
+  filter: drop-shadow(0 0 4px rgba(0, 255, 140, 1))
+    drop-shadow(0 0 18px rgba(0, 230, 100, 0.55))
+    drop-shadow(0 0 36px rgba(0, 180, 70, 0.2));
+}
+
+@media (max-width: 600px) {
+  #about-btn {
+    top: auto;
+    right: auto;
+    bottom: 10px;
+    left: 68px;
+    font-size: 1rem;
+  }
+}
+
+/* ═══ About Modal ════════════════════════════════════════════════════════════ */
+
+#about-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 10, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+#about-modal.visible {
+  display: flex;
+  animation: fade-in 0.3s ease both;
+}
+
+#about-card {
+  position: relative;
+  max-width: 440px;
+  width: 90%;
+  padding: 36px 36px 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  box-shadow:
+    0 0 60px rgba(80, 30, 200, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(200, 185, 240, 0.75);
+}
+
+#about-card h3 {
+  font-family: "ClashDisplay", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(180, 140, 255, 0.9);
+  margin: 0 0 10px;
+}
+
+#about-card h3 + * {
+  margin-top: 0;
+}
+
+#about-card h3:not(:first-of-type) {
+  margin-top: 22px;
+}
+
+#about-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+#about-card li {
+  margin-bottom: 5px;
+}
+
+#about-card p {
+  margin: 0;
+}
+
+#about-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: rgba(200, 180, 255, 0.4);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+#about-close:hover {
+  color: rgba(200, 180, 255, 0.9);
+}
+
+/* Mobile adjustments for overlay + modal */
+@media (max-width: 600px) {
+  #landing-game-title {
+    font-size: 2.2rem;
+  }
+  #landing-tagline {
+    font-size: 0.9rem;
+  }
+  #landing-desc {
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+  }
+  #play-btn {
+    padding: 10px 28px;
+    font-size: 16px;
+    letter-spacing: 0.4em;
+  }
+  #about-card {
+    padding: 28px 20px 22px;
+  }
+}
+
 /* === Copyright === */
 .copyright {
   position: fixed;
@@ -436,30 +726,104 @@ h2 {
   font-weight: 400;
   letter-spacing: 0.08em;
   color: #2d0060;
-  opacity: 0.35;
+  opacity: 0.18;
   pointer-events: none;
 }
 
 /* === Responsive === */
-@media (max-width: 600px) {
-  h1 {
-    top: 10px;
-    font-size: 1.5rem;
-  }
+
+/* Tablet — 601–900px */
+@media (max-width: 900px) and (min-width: 601px) {
   h2 {
-    top: 68px;
-    font-size: 0.75rem;
+    top: 130px;
+    font-size: 15px;
+  }
+  .round-label {
+    top: 152px;
+  }
+  .score-bar {
+    top: 168px;
+    padding: 0 60px;
+  }
+  .score-num {
+    font-size: 2.6rem;
+  }
+}
+
+/* Mobile — ≤ 600px */
+@media (max-width: 600px) {
+  /* Move turn message to bottom so it doesn't crowd the title */
+  h2 {
+    top: auto;
+    bottom: 100px;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+  }
+  .round-label {
+    top: 124px;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+  }
+  .score-bar {
+    top: 142px;
+    padding: 0 14px;
+  }
+  .score-num {
+    font-size: 1.9rem;
+  }
+  .score-label {
+    font-size: 0.7rem;
   }
   .controls {
-    bottom: 10px;
+    bottom: 26px;
     gap: 8px;
   }
   #reset-btn {
-    font-size: 0.85rem;
+    font-size: 14px;
     padding: 8px 14px;
+    letter-spacing: 0.3em;
+  }
+  #next-round-btn {
+    font-size: 13px;
+    padding: 8px 12px;
+    letter-spacing: 0.25em;
   }
   label {
-    font-size: 0.8rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    opacity: 0.55;
+  }
+}
+
+/* Small phones — ≤ 400px */
+@media (max-width: 400px) {
+  h2 {
+    top: auto;
+    bottom: 96px;
+    font-size: 11px;
+  }
+  .round-label {
+    top: 104px;
+    font-size: 0.6rem;
+  }
+  .score-bar {
+    top: 120px;
+    padding: 0 8px;
+  }
+  .score-num {
+    font-size: 1.6rem;
+  }
+  .controls {
+    bottom: 20px;
+  }
+  #reset-btn {
+    font-size: 12px;
+    padding: 7px 10px;
+    letter-spacing: 0.2em;
+  }
+  #next-round-btn {
+    font-size: 11px;
+    padding: 7px 10px;
   }
 }
 
@@ -587,28 +951,97 @@ body.dark .copyright {
 }
 
 body.dark #vs-computer {
-  accent-color: #ff2200;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid rgba(0, 210, 255, 0.6);
+  border-radius: 3px;
+  background: rgba(0, 150, 255, 0.08);
+  box-shadow:
+    0 0 6px rgba(0, 210, 255, 0.35),
+    inset 0 0 4px rgba(0, 210, 255, 0.1);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: box-shadow 0.2s;
+}
+
+body.dark #vs-computer:checked {
+  background: linear-gradient(135deg, #00ccff 0%, #5544ff 100%);
+  box-shadow:
+    0 0 10px rgba(0, 200, 255, 0.65),
+    inset 0 0 5px rgba(255, 255, 255, 0.15);
+}
+
+body.dark #vs-computer:checked::after {
+  content: "✓";
+  position: absolute;
+  color: #fff;
+  font-size: 9px;
+  top: -1px;
+  left: 1px;
+  line-height: 1;
 }
 
 body.dark label {
   color: #ff4444;
 }
 
-/* Dark-mode theme toggle button */
+/* Dark-mode theme toggle — pill switch */
 #theme-toggle {
   position: fixed;
-  bottom: 10px;
+  bottom: 11px;
   left: 16px;
-  background: none;
-  border: none;
-  font-size: 1.4rem;
+  width: 42px;
+  height: 22px;
+  border-radius: 11px;
+  border: 1.5px solid rgba(140, 100, 240, 0.3);
+  background: rgba(140, 100, 240, 0.08);
   cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.2s;
   z-index: 10;
-  padding: 4px;
-  line-height: 1;
+  padding: 0;
+  font-size: 0;
+  box-shadow: 0 0 8px rgba(120, 80, 220, 0.1);
+  transition:
+    background 0.35s,
+    border-color 0.35s,
+    box-shadow 0.35s;
 }
+
+#theme-toggle::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  background: #ffcc44;
+  box-shadow:
+    0 0 8px rgba(255, 180, 0, 0.8),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+  transition:
+    left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.35s,
+    box-shadow 0.35s;
+}
+
 #theme-toggle:hover {
-  opacity: 1;
+  border-color: rgba(140, 100, 240, 0.6);
+  box-shadow: 0 0 14px rgba(120, 80, 220, 0.28);
+}
+
+body.dark #theme-toggle {
+  background: rgba(55, 0, 110, 0.45);
+  border-color: rgba(160, 90, 255, 0.6);
+  box-shadow: 0 0 12px rgba(130, 60, 255, 0.35);
+}
+
+body.dark #theme-toggle::after {
+  left: 21px;
+  background: #bb88ff;
+  box-shadow:
+    0 0 10px rgba(180, 100, 255, 0.95),
+    0 1px 3px rgba(0, 0, 0, 0.3);
 }

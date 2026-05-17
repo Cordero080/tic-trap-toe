@@ -131,6 +131,8 @@ function buildX() {
     color: 0xffffff,
     roughness: 0.35,
     metalness: 0.1,
+    emissive: new THREE.Color(_isDark ? 0xcccccc : 0x000000),
+    emissiveIntensity: _isDark ? 0.65 : 0,
   });
   for (const angle of [Math.PI / 4, -Math.PI / 4]) {
     const m = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, len, 9), mat);
@@ -142,9 +144,11 @@ function buildX() {
 
 function buildO() {
   const mat = new THREE.MeshStandardMaterial({
-    color: 0xddd0ff,
+    color: _isDark ? 0xffffff : 0xddd0ff,
     roughness: 0.35,
     metalness: 0.1,
+    emissive: new THREE.Color(_isDark ? 0xaaaaff : 0x000000),
+    emissiveIntensity: _isDark ? 0.55 : 0,
   });
   return new THREE.Mesh(new THREE.TorusGeometry(CELL * 0.28, 0.1, 14, 44), mat);
 }
@@ -321,7 +325,15 @@ export function syncMarks() {
         // Activate slab extrusion + click sound
         const slab = cellSlabs[fi][ci];
         if (slab) {
-          slab.mat.color.set(val === "X" ? 0xe8e4ff : 0xd4eeff);
+          if (_isDark) {
+            slab.mat.color.set(val === "X" ? 0xfaf8ff : 0xeaf4ff);
+            slab.mat.emissive = new THREE.Color(
+              val === "X" ? 0x666666 : 0x224466,
+            );
+            slab.mat.emissiveIntensity = 0.45;
+          } else {
+            slab.mat.color.set(val === "X" ? 0xe8e4ff : 0xd4eeff);
+          }
           slab.target = 0.45;
         }
         playClick();

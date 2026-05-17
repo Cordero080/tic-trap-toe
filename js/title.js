@@ -31,22 +31,23 @@ let _pendingDark = false;
 let _titleSpot = null;
 let _titleRim = null;
 let _titleShaper = null;
+let _titleNaturalWidth = 0; // bounding-box width at scale=1
 
 // Dark-mode letter colors — matching the 6 cube face colors, brighter for title
 const DARK_LETTER_COLORS = [
   // T   I   C   -   T   R   A   P   -   T   O   E
-  { front: 0xb83030, side: 0xd04848, emissive: 0x601010 }, // crimson
-  { front: 0x2898a8, side: 0x40b0c0, emissive: 0x104850 }, // teal
-  { front: 0xa03898, side: 0xb850b0, emissive: 0x501840 }, // plum
-  { front: 0xb88030, side: 0xd09840, emissive: 0x584010 }, // bronze
-  { front: 0x28a048, side: 0x40b860, emissive: 0x105018 }, // forest
-  { front: 0xb83030, side: 0xd04848, emissive: 0x601010 }, // crimson
-  { front: 0x3050b0, side: 0x4868c8, emissive: 0x102058 }, // midnight
-  { front: 0xa03898, side: 0xb850b0, emissive: 0x501840 }, // plum
-  { front: 0xb88030, side: 0xd09840, emissive: 0x584010 }, // bronze
-  { front: 0x2898a8, side: 0x40b0c0, emissive: 0x104850 }, // teal
-  { front: 0x28a048, side: 0x40b860, emissive: 0x105018 }, // forest
-  { front: 0x3050b0, side: 0x4868c8, emissive: 0x102058 }, // midnight
+  { front: 0xe04848, side: 0xee6666, emissive: 0x882020 }, // crimson
+  { front: 0x30b8cc, side: 0x50ccdd, emissive: 0x126070 }, // teal
+  { front: 0xc048b8, side: 0xd060c8, emissive: 0x782060 }, // plum
+  { front: 0xdd9e40, side: 0xeebb55, emissive: 0x8a6018 }, // bronze
+  { front: 0x30cc5c, side: 0x50dd7c, emissive: 0x127830 }, // forest
+  { front: 0xe04848, side: 0xee6666, emissive: 0x882020 }, // crimson
+  { front: 0x4868d8, side: 0x6888ee, emissive: 0x1c3898 }, // midnight
+  { front: 0xc048b8, side: 0xd060c8, emissive: 0x782060 }, // plum
+  { front: 0xdd9e40, side: 0xeebb55, emissive: 0x8a6018 }, // bronze
+  { front: 0x30b8cc, side: 0x50ccdd, emissive: 0x126070 }, // teal
+  { front: 0x30cc5c, side: 0x50dd7c, emissive: 0x127830 }, // forest
+  { front: 0x4868d8, side: 0x6888ee, emissive: 0x1c3898 }, // midnight
 ];
 
 export function initTitle(scene, camera) {
@@ -139,6 +140,11 @@ export function initTitle(scene, camera) {
       scene.add(group);
       titleMesh = group;
 
+      // Store natural (scale=1) width so resizeTitle() can compute the right factor
+      const fullBox = new THREE.Box3().setFromObject(group);
+      _titleNaturalWidth = fullBox.max.x - fullBox.min.x;
+      resizeTitle();
+
       // Apply queued dark-mode state now that materials exist
       if (_pendingDark) setDarkMode(true);
     },
@@ -149,6 +155,16 @@ export function updateTitle(t) {
   if (!titleMesh) return;
   titleMesh.position.y = 10 + Math.sin(t * 1.1) * 0.18;
   titleMesh.rotation.x = 0.22;
+}
+
+export function resizeTitle() {
+  if (!_camera || !titleMesh || _titleNaturalWidth === 0) return;
+  const dist = _camera.position.z - titleMesh.position.z;
+  const halfW =
+    dist * Math.tan((_camera.fov * Math.PI) / 180 / 2) * _camera.aspect;
+  const visibleWidth = halfW * 2;
+  const s = Math.min(1.0, (visibleWidth * 0.88) / _titleNaturalWidth);
+  titleMesh.scale.setScalar(s);
 }
 
 /* ── setDarkMode — per-letter colors + dramatic spotlight in dark mode ── */

@@ -8,23 +8,19 @@
 
 ## Current Post
 
-Just shipped a dark mode for Tic-Trap-Toe.
+Just pushed Tic-Trap-Toe to GitHub and deployed it on Vercel.
 
-One toggle. Everything changes.
+Six boards. One rotating cube. The cube never stops.
 
-**Holographic black background.** Deep vignette with animated iridescent shimmer — purple, cyan, magenta gradients that drift across the screen. Studio spotlight keeps the cube lit center-stage while the edges fall off to black.
+This isn't normal tic-tac-toe — you can't stall, you can't force a draw. The board you were about to win might spin away before your next move. You're mid-game on two or three faces at once and have to decide which one is worth committing to.
 
-**Per-face cube colors.** Each of the six faces gets its own dark jewel tone — wine, navy, violet, emerald, amber, slate. High metalness, low roughness. The rainbow frame borders stay multicolor but slightly desaturated so they glow instead of burn.
+The AI starts casual and becomes unbeatable as you rack up face wins. Dark mode included. Zero build step, zero audio files.
 
-**Per-letter title colors.** Every character in "TIC-TRAP-TOE" has its own color matching the cube palette — crimson, teal, plum, bronze, forest, midnight. Dramatic spotlight from above makes it look like it's floating in space.
+Play it: [link]
 
-**Dramatic lighting.** Frontal studio point light, repositioned directional sun, ambient dropped way down. Deep shadows on the back faces, strong highlights on the front. The cube has real depth now.
+Built with Three.js and vanilla JavaScript.
 
-Light mode is untouched. Persists via localStorage. Toggle is bottom-left corner.
-
-Built with Three.js and vanilla JavaScript. Zero build step, zero audio files, zero dependencies beyond the CDN importmap.
-
-🎮 GitHub: https://lnkd.in/eBSCqf6G
+🎮 GitHub: https://github.com/Cordero080/tic-trap-toe
 🌐 Portfolio: https://pvblocordero.com
 
 #threejs #javascript #webdev #gamedev #buildingpublic
@@ -35,6 +31,7 @@ Built with Three.js and vanilla JavaScript. Zero build step, zero audio files, z
 
 | Date       | What changed                                                                                                                                |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-05-17 | Deployed to Vercel, moved repo to tic-trap-toe, darkened landing overlay, fixed desc text visibility, added dark mode screenshots to README |
 | 2026-04-10 | Dark mode — holographic background, per-face cube colors, per-letter title colors, dramatic studio lighting, theme toggle with localStorage |
 | 2026-03-16 | Draw shockwave rings + chirped jiggle + bass poof, between-rounds free-rotate drag, tiebreaker logic                                        |
 | 2026-03-15 | Adaptive AI (5 levels + minimax), multi-round progression, adaptive cube steering, round label, score 3D shadow, Next Round button          |

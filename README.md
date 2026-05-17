@@ -59,13 +59,13 @@ There's no timer. No forced turn order between faces. **If you can see the cells
 
 When playing vs Computer, the AI gets harder every time you win a face — and that difficulty **carries across rounds**. Win a match, hit Next Round, and the AI picks up where it left off.
 
-| Faces won (total) | AI level | Behavior |
-|---|---|---|
-| 0 | Rookie | Plays randomly 70% of the time |
-| 1 | Casual | Plays randomly 40% of the time |
-| 2 | Focused | Plays randomly 15% of the time |
-| 3 | Sharp | Always plays the smart heuristic |
-| 4+ | Unbeatable | Full minimax — provably optimal |
+| Faces won (total) | AI level   | Behavior                         |
+| ----------------- | ---------- | -------------------------------- |
+| 0                 | Rookie     | Plays randomly 70% of the time   |
+| 1                 | Casual     | Plays randomly 40% of the time   |
+| 2                 | Focused    | Plays randomly 15% of the time   |
+| 3                 | Sharp      | Always plays the smart heuristic |
+| 4+                | Unbeatable | Full minimax — provably optimal  |
 
 **How to beat Unbeatable:** You can't win, but you can draw. Take center immediately if it's free. If the AI takes center, go to a corner. Always block the most dangerous threat. With perfect play every game ends in a draw — that's the ceiling.
 
@@ -100,6 +100,9 @@ Toggle the 🌙 button (bottom-left corner). Persists via `localStorage`.
 - **Borders** — rainbow cycling preserved, slightly desaturated for elegance
 - **Lighting** — frontal studio spotlight, dimmed ambient, repositioned sun for dramatic depth
 
+![Dark mode gameplay — face won](assets/screenshots/Screenshot%202026-05-16%20at%2011.36.11%20PM.png)
+![Dark mode mobile — multi-face progress](assets/screenshots/Screenshot%202026-05-16%20at%2011.37.04%20PM.png)
+
 ---
 
 ## Run Locally
@@ -109,6 +112,12 @@ open index.html
 # or if your browser blocks ES modules from file://
 npx serve .
 ```
+
+---
+
+## Stretch Goals
+
+- **Two-player multiplayer** — invite a friend via a shareable link. No accounts needed: Player 1 gets a room code, Player 2 joins via URL (`?room=abc123`). A thin real-time layer (Partykit or Supabase Realtime) syncs moves between browsers. Room state is ephemeral — no database required.
 
 ---
 

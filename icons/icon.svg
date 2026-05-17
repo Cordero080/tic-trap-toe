@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Rounded-rect background -->
+  <rect width="512" height="512" rx="80" ry="80" fill="#07070f"/>
+
+  <!--
+    Isometric cube centered in the icon.
+    Cube side length in screen space: ~200px
+    Isometric projection angles: 30° from horizontal for left/right faces.
+
+    Center of cube projection: (256, 258)
+    Top vertex (apex): (256, 118)
+    Front-left vertex: (136, 188)
+    Front-right vertex: (376, 188)
+    Bottom-left vertex: (136, 328)
+    Bottom-right vertex: (376, 328)
+    Bottom-center vertex: (256, 398)
+
+    Face fills: dark jewel tones
+  -->
+
+  <!-- Top face: apex, front-left-top, front-right-top -->
+  <polygon
+    points="256,118 136,188 256,258 376,188"
+    fill="#0d1a2e"
+    stroke="none"
+  />
+
+  <!-- Left face: front-left-top, bottom-left, bottom-center, center -->
+  <polygon
+    points="136,188 136,328 256,398 256,258"
+    fill="#0a1a1a"
+    stroke="none"
+  />
+
+  <!-- Right face: front-right-top, center, bottom-center, bottom-right -->
+  <polygon
+    points="376,188 256,258 256,398 376,328"
+    fill="#12091e"
+    stroke="none"
+  />
+
+  <!--
+    Grid lines on the LEFT face (2x2 grid = 2 dividers each axis)
+    Left face corners: TL=136,188  TR=256,258  BR=256,398  BL=136,328
+    Divide each edge into thirds for a 2-cell grid (3 divisions = 2 interior lines)
+
+    Horizontal lines (parallel to top edge of left face):
+      1/3 down: lerp from (136,188)→(136,328) at t=1/3 = (136, 232)
+                lerp from (256,258)→(256,398) at t=1/3 = (256, 304.67) — wait,
+                actually the left face is a parallelogram.
+
+    Left face: top-left (136,188), top-right (256,258), bot-right (256,398), bot-left (136,328)
+    Left edge: (136,188)→(136,328), height 140
+    Right edge: (256,258)→(256,398), height 140
+    Horizontal divider at 1/3: left pt (136, 188+46.67)=(136,234.67), right pt (256, 258+46.67)=(256,304.67)
+    Horizontal divider at 2/3: left pt (136, 188+93.33)=(136,281.33), right pt (256, 258+93.33)=(256,351.33)
+
+    Vertical dividers (parallel to left edge of left face):
+    Top edge: (136,188)→(256,258), length along x=120, y=70
+    Bottom edge: (136,328)→(256,398), same offsets
+    Vertical divider at 1/3: top pt (136+40,188+23.33)=(176,211.33), bot pt (136+40,328+23.33)=(176,351.33)
+    Vertical divider at 2/3: top pt (136+80,188+46.67)=(216,234.67), bot pt (136+80,328+46.67)=(216,374.67)
+  -->
+
+  <!-- Left face grid lines -->
+  <line x1="136" y1="234.67" x2="256" y2="304.67" stroke="#1a3a3a" stroke-width="1.5" opacity="0.6"/>
+  <line x1="136" y1="281.33" x2="256" y2="351.33" stroke="#1a3a3a" stroke-width="1.5" opacity="0.6"/>
+  <line x1="176" y1="211.33" x2="176" y2="351.33" stroke="#1a3a3a" stroke-width="1.5" opacity="0.6"/>
+  <line x1="216" y1="234.67" x2="216" y2="374.67" stroke="#1a3a3a" stroke-width="1.5" opacity="0.6"/>
+
+  <!--
+    Grid lines on the RIGHT face
+    Right face: TL=256,258  TR=376,188  BR=376,328  BL=256,398
+    Left edge: (256,258)→(256,398), height 140
+    Right edge: (376,188)→(376,328), height 140
+    Top edge: (256,258)→(376,188), dx=120, dy=-70
+    Bottom edge: (256,398)→(376,328), same
+
+    Horizontal dividers at 1/3 and 2/3 (parallel to top edge):
+      1/3: left pt (256, 258+46.67)=(256,304.67), right pt (376,188+46.67)=(376,234.67)
+      2/3: left pt (256, 258+93.33)=(256,351.33), right pt (376,188+93.33)=(376,281.33)
+
+    Vertical dividers (parallel to left edge):
+      1/3 along top: (256+40, 258-23.33)=(296,234.67), (256+40,398-23.33)=(296,374.67)
+      2/3 along top: (256+80, 258-46.67)=(336,211.33), (256+80,398-46.67)=(336,351.33)
+  -->
+
+  <!-- Right face grid lines -->
+  <line x1="256" y1="304.67" x2="376" y2="234.67" stroke="#2a1a3a" stroke-width="1.5" opacity="0.6"/>
+  <line x1="256" y1="351.33" x2="376" y2="281.33" stroke="#2a1a3a" stroke-width="1.5" opacity="0.6"/>
+  <line x1="296" y1="234.67" x2="296" y2="374.67" stroke="#2a1a3a" stroke-width="1.5" opacity="0.6"/>
+  <line x1="336" y1="211.33" x2="336" y2="351.33" stroke="#2a1a3a" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Rainbow edges — 9 visible edges of the isometric cube, each a different color -->
+
+  <!-- Top face edges (3 edges) -->
+  <!-- Top-left edge: apex (256,118) to front-left (136,188) — magenta -->
+  <line x1="256" y1="118" x2="136" y2="188" stroke="#ff00ff" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Top-right edge: apex (256,118) to front-right (376,188) — cyan -->
+  <line x1="256" y1="118" x2="376" y2="188" stroke="#00ffff" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Top-front edge: front-left (136,188) to front-right (376,188) — yellow -->
+  <line x1="136" y1="188" x2="376" y2="188" stroke="#ffee00" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Left face vertical edges (2 edges) -->
+  <!-- Left-vertical: front-left-top (136,188) to bottom-left (136,328) — green -->
+  <line x1="136" y1="188" x2="136" y2="328" stroke="#00ff88" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Center-vertical: center (256,258) to bottom-center (256,398) — blue -->
+  <line x1="256" y1="258" x2="256" y2="398" stroke="#4488ff" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Right face vertical edge -->
+  <!-- Right-vertical: front-right-top (376,188) to bottom-right (376,328) — orange -->
+  <line x1="376" y1="188" x2="376" y2="328" stroke="#ff8800" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Bottom edges (3 edges) -->
+  <!-- Bottom-left: bottom-left (136,328) to bottom-center (256,398) — red -->
+  <line x1="136" y1="328" x2="256" y2="398" stroke="#ff3366" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Bottom-right: bottom-right (376,328) to bottom-center (256,398) — violet -->
+  <line x1="376" y1="328" x2="256" y2="398" stroke="#cc44ff" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- Center-top: front-left (136,188) to center (256,258) AND center to front-right (376,188) — lime -->
+  <line x1="136" y1="188" x2="256" y2="258" stroke="#aaff00" stroke-width="3.5" stroke-linecap="round"/>
+  <line x1="256" y1="258" x2="376" y2="188" stroke="#ff6600" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Vertex dots for crisp corners -->
+  <circle cx="256" cy="118" r="4" fill="#ff00ff"/>
+  <circle cx="136" cy="188" r="4" fill="#00ffff"/>
+  <circle cx="376" cy="188" r="4" fill="#ffee00"/>
+  <circle cx="256" cy="258" r="4" fill="#ffffff" opacity="0.7"/>
+  <circle cx="136" cy="328" r="4" fill="#00ff88"/>
+  <circle cx="376" cy="328" r="4" fill="#ff8800"/>
+  <circle cx="256" cy="398" r="4" fill="#cc44ff"/>
+</svg>

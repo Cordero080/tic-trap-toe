@@ -3,9 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#07070f" />
+    <link rel="apple-touch-icon" href="/icons/icon.svg" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <link rel="stylesheet" href="./css/style.css" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500&family=Press+Start+2P&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500&family=Doto:wght@100..900&family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
     <script type="importmap">
@@ -44,12 +53,58 @@
         <button id="next-round-btn" style="display: none">Next Round</button>
       </div>
       <label>
-        <input type="checkbox" id="vs-computer" />
+        <input type="checkbox" id="vs-computer" checked />
         Play vs Computer
       </label>
     </div>
 
     <p class="copyright">© 2025 Pablo Cordero</p>
-    <button id="theme-toggle" title="Toggle dark mode">🌙</button>
+    <button id="theme-toggle" title="Toggle dark/light mode"></button>
+    <button id="about-btn" title="How to play">ℹ</button>
+
+    <!-- Landing overlay — spins cube is visible behind the glass card -->
+    <div id="landing-overlay">
+      <div id="landing-card">
+        <div id="landing-game-title">Tic-Trap-Toe</div>
+        <p id="landing-tagline">
+          You already know how to play.<br />Winning is the hard part.
+        </p>
+        <p id="landing-desc">
+          Six boards on a rotating 3D cube. Claim 3 faces to win — if the
+          rotation lets you. Keep winning and it stops going easy on you.
+        </p>
+        <button id="play-btn">Play</button>
+      </div>
+    </div>
+
+    <!-- About modal -->
+    <div id="about-modal">
+      <div id="about-card">
+        <button id="about-close">✕</button>
+        <h3>How to Play</h3>
+        <ul>
+          <li>Drag to spin the cube</li>
+          <li>Click any empty cell on a visible face to place your mark</li>
+          <li>Get 3 in a row on a face to claim it</li>
+          <li>Claim 3 faces to win the match</li>
+        </ul>
+        <h3>The Twist</h3>
+        <p>
+          The cube never stops rotating. Faces drift in and out of reach — the
+          board you're about to win might spin away before your next move.
+        </p>
+        <h3>vs Computer</h3>
+        <p>
+          The AI starts casual and becomes unbeatable as you rack up face wins
+          across rounds.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      }
+    </script>
   </body>
 </html>
