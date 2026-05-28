@@ -26,6 +26,7 @@ import {
   makeMove,
   resetAll,
   resetRound,
+  setVsComputer,
 } from "./app.js";
 import {
   hitPlaneMeshes,
@@ -263,7 +264,10 @@ document.getElementById("reset-btn").addEventListener("click", doReset);
 nextRoundBtn.addEventListener("click", doNextRound);
 
 // Toggling vs-computer mid-game resets so the AI state starts clean
-document.getElementById("vs-computer").addEventListener("change", doReset);
+document.getElementById("vs-computer").addEventListener("change", (e) => {
+  setVsComputer(e.target.checked);
+  doReset();
+});
 
 /* ── Resize ── */
 window.addEventListener("resize", () => {

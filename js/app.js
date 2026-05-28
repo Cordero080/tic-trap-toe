@@ -254,9 +254,9 @@ export function resetAll() {
   difficulty = 0;
 }
 
-/* vs-computer toggle — runs when this module is imported */
-const cb = document.getElementById("vs-computer");
-if (cb)
-  cb.addEventListener("change", () => {
-    vsComputer = cb.checked;
-  });
+// ── setVsComputer ─────────────────────────────────────────────────────────────
+// Called by background.js when the vs-computer checkbox changes.
+// Kept here so vsComputer stays as a live-binding let export.
+export function setVsComputer(val) {
+  vsComputer = val;
+}

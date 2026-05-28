@@ -1,1 +1,4 @@
 .playwright-mcp/
+.vercel
+.env*.local
+.vite/

@@ -31,6 +31,7 @@ Built with Three.js and vanilla JavaScript.
 
 | Date       | What changed                                                                                                                                |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-05-27 | Code audit cleanup — removed dead CSS (unused fonts, unreachable rules), deduplicated button glow styles, moved DOM listener to correct module, cleared root clutter |
 | 2026-05-17 | Deployed to Vercel, moved repo to tic-trap-toe, darkened landing overlay, fixed desc text visibility, added dark mode screenshots to README |
 | 2026-04-10 | Dark mode — holographic background, per-face cube colors, per-letter title colors, dramatic studio lighting, theme toggle with localStorage |
 | 2026-03-16 | Draw shockwave rings + chirped jiggle + bass poof, between-rounds free-rotate drag, tiebreaker logic                                        |

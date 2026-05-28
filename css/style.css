@@ -213,8 +213,18 @@ h2 {
   inherits: false;
 }
 
-#reset-btn::after,
-#reset-btn::before {
+@keyframes spin {
+  from {
+    --angle: 0deg;
+  }
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* Shared conic-gradient glow border — used by Reset and Play buttons */
+.glow-btn::after,
+.glow-btn::before {
   content: "";
   position: absolute;
   height: 90%;
@@ -233,23 +243,14 @@ h2 {
   translate: -50% -50%;
   z-index: -1;
   padding: 3px;
-  border: none;
   border-radius: 8px;
   animation: 3s spin linear infinite;
 }
-#reset-btn::before {
+.glow-btn::before {
   filter: blur(1.5rem);
   opacity: 0.5;
 }
-@keyframes spin {
-  from {
-    --angle: 0deg;
-  }
-  to {
-    --angle: 360deg;
-  }
-}
-#reset-btn:hover {
+.glow-btn:hover {
   box-shadow:
     0 0 1px 1px #eae9e9,
     0 0 5px 5px #523ee8;
@@ -526,41 +527,6 @@ h2 {
   letter-spacing: 0.5em;
   text-transform: uppercase;
   -webkit-text-fill-color: #fdfdfd;
-}
-
-#play-btn::after,
-#play-btn::before {
-  content: "";
-  position: absolute;
-  height: 90%;
-  width: 100%;
-  background-image: conic-gradient(
-    from var(--angle),
-    transparent 3%,
-    rgb(21, 0, 255),
-    rgb(121, 60, 165),
-    rgb(1, 169, 191),
-    rgb(216, 56, 147),
-    rgb(68, 0, 255)
-  );
-  top: 50%;
-  left: 50%;
-  translate: -50% -50%;
-  z-index: -1;
-  padding: 3px;
-  border-radius: 8px;
-  animation: 3s spin linear infinite;
-}
-
-#play-btn::before {
-  filter: blur(1.5rem);
-  opacity: 0.5;
-}
-
-#play-btn:hover {
-  box-shadow:
-    0 0 1px 1px #eae9e9,
-    0 0 5px 5px #523ee8;
 }
 
 /* ═══ About Button ═══════════════════════════════════════════════════════════ */
