@@ -51,6 +51,16 @@ import {
   showGameOver,
   hideGameOver,
 } from "./title.js";
+import { primeAudio } from "./audio.js";
+
+/* ── Prime Web Audio on first gesture so iOS Safari unlocks the context ── */
+function _primeOnce() {
+  primeAudio();
+  document.removeEventListener("touchstart", _primeOnce, true);
+  document.removeEventListener("click", _primeOnce, true);
+}
+document.addEventListener("touchstart", _primeOnce, true);
+document.addEventListener("click", _primeOnce, true);
 
 /* ── Renderer ── */
 const canvas = document.getElementById("bg-canvas");

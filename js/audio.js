@@ -3,7 +3,7 @@
  *  All sounds are synthesized on the fly — no audio files needed.
  *  getAudio() lazily creates (and resumes) the shared AudioContext.
  *
- *  Exports: playClick, playThud, playRobotVoice, playMatchWin
+ *  Exports: playClick, playThud, playRobotVoice, playMatchWin, primeAudio
  * ── */
 
 let _audioCtx = null;
@@ -12,6 +12,12 @@ function getAudio() {
   if (!_audioCtx) _audioCtx = new AudioContext();
   if (_audioCtx.state === "suspended") _audioCtx.resume();
   return _audioCtx;
+}
+
+/* Must be called synchronously inside a user-gesture handler (e.g. touchstart)
+ * so iOS Safari unlocks the AudioContext before the first sound fires. */
+export function primeAudio() {
+  getAudio();
 }
 
 /* Short bandpass noise burst — plays on every mark placement */
