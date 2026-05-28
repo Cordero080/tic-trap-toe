@@ -32,6 +32,16 @@ let _titleSpot = null;
 let _titleRim = null;
 let _titleShaper = null;
 let _titleNaturalWidth = 0; // bounding-box width at scale=1
+let _scene = null;
+let _font = null; // cached font for game-over text reuse
+
+// Game-over text state
+let _gameOverGroup = null;
+let _gameOverMats = [];
+let _gameOverOpacity = 0;
+let _gameOverTarget = 0;
+let _pendingGameOver = null;
+let _gameOverNaturalWidth = 0;
 
 // Dark-mode letter colors — matching the 6 cube face colors, brighter for title
 const DARK_LETTER_COLORS = [
@@ -51,6 +61,7 @@ const DARK_LETTER_COLORS = [
 ];
 
 export function initTitle(scene, camera) {
+  _scene = scene;
   _camera = camera;
 
   // Spotlight from above — hard cone creates strong shadow under each letter's
@@ -82,6 +93,7 @@ export function initTitle(scene, camera) {
   fontLoader.load(
     "https://unpkg.com/three@0.160.0/examples/fonts/helvetiker_bold.typeface.json",
     (font) => {
+      _font = font;
       const TITLE = "TIC-TRAP-TOE";
       const group = new THREE.Group();
       _letterMats = [];
@@ -103,19 +115,20 @@ export function initTitle(scene, camera) {
         geo.computeBoundingBox();
         const w = geo.boundingBox.max.x - geo.boundingBox.min.x;
 
+        const dc = DARK_LETTER_COLORS[i % DARK_LETTER_COLORS.length];
         const frontMat = new THREE.MeshStandardMaterial({
-          color: 0x2d0060,
-          metalness: 0.35,
-          roughness: 0.25,
-          emissive: new THREE.Color(0x2d0060),
-          emissiveIntensity: 0.3,
+          color: dc.front,
+          metalness: 0.5,
+          roughness: 0.3,
+          emissive: new THREE.Color(dc.emissive),
+          emissiveIntensity: 0.5,
         });
         const sideMat = new THREE.MeshStandardMaterial({
-          color: 0x8833ff,
-          metalness: 0.5,
-          roughness: 0.15,
-          emissive: new THREE.Color(0x440088),
-          emissiveIntensity: 0.2,
+          color: dc.side,
+          metalness: 0.55,
+          roughness: 0.2,
+          emissive: new THREE.Color(dc.emissive),
+          emissiveIntensity: 0.4,
         });
         _letterMats.push({ front: frontMat, side: sideMat });
 
@@ -147,14 +160,128 @@ export function initTitle(scene, camera) {
 
       // Apply queued dark-mode state now that materials exist
       if (_pendingDark) setDarkMode(true);
+      if (_pendingGameOver) buildGameOverMesh(_pendingGameOver);
     },
   );
 }
 
-export function updateTitle(t) {
+/* ── buildGameOverMesh — creates the 3-D "X WINS!" / "DRAW!" overlay ── */
+function buildGameOverMesh(text) {
+  if (_gameOverGroup) {
+    _scene.remove(_gameOverGroup);
+    _gameOverGroup = null;
+  }
+  _gameOverMats = [];
+  _gameOverOpacity = 0;
+  _pendingGameOver = null;
+
+  const group = new THREE.Group();
+  let xCursor = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const geo = new TextGeometry(ch, {
+      font: _font,
+      size: 2.0,
+      height: 0.5,
+      bevelEnabled: true,
+      bevelThickness: 0.06,
+      bevelSize: 0.05,
+      bevelSegments: 5,
+    });
+    geo.computeBoundingBox();
+    const w = geo.boundingBox.max.x - geo.boundingBox.min.x;
+
+    const dc = DARK_LETTER_COLORS[i % DARK_LETTER_COLORS.length];
+    const frontMat = new THREE.MeshStandardMaterial({
+      color: dc.front,
+      emissive: new THREE.Color(dc.emissive),
+      emissiveIntensity: 0.5,
+      metalness: 0.5,
+      roughness: 0.3,
+      transparent: true,
+      opacity: 0,
+    });
+    const sideMat = new THREE.MeshStandardMaterial({
+      color: dc.side,
+      emissive: new THREE.Color(dc.emissive),
+      emissiveIntensity: 0.4,
+      metalness: 0.55,
+      roughness: 0.2,
+      transparent: true,
+      opacity: 0,
+    });
+    _gameOverMats.push(frontMat, sideMat);
+
+    const mesh = new THREE.Mesh(geo, [frontMat, sideMat]);
+    mesh.position.x = xCursor;
+    group.add(mesh);
+    xCursor += w + 0.15;
+  }
+
+  // Center the group
+  const box = new THREE.Box3().setFromObject(group);
+  const cx = -(box.max.x - box.min.x) / 2 - box.min.x;
+  const cy = -(box.max.y - box.min.y) / 2 - box.min.y;
+  group.children.forEach((m) => {
+    m.position.x += cx;
+    m.position.y += cy;
+  });
+
+  group.position.set(0, 5, 2);
+  group.rotation.x = 0.15;
+  group.visible = false;
+  _gameOverGroup = group;
+  _scene.add(group);
+
+  const goBox = new THREE.Box3().setFromObject(group);
+  _gameOverNaturalWidth = goBox.max.x - goBox.min.x;
+  resizeGameOver();
+}
+
+function resizeGameOver() {
+  if (!_camera || !_gameOverGroup || _gameOverNaturalWidth === 0) return;
+  const dist = _camera.position.z - _gameOverGroup.position.z;
+  const halfW =
+    dist * Math.tan((_camera.fov * Math.PI) / 180 / 2) * _camera.aspect;
+  const visibleWidth = halfW * 2;
+  const s = Math.min(1.2, (visibleWidth * 0.72) / _gameOverNaturalWidth);
+  _gameOverGroup.scale.setScalar(s);
+}
+
+export function showGameOver(text) {
+  _gameOverTarget = 1;
+  if (_font) buildGameOverMesh(text);
+  else _pendingGameOver = text;
+}
+
+export function hideGameOver() {
+  _gameOverTarget = 0;
+  _pendingGameOver = null;
+  _gameOverOpacity = 0;
+  _gameOverMats.forEach((m) => {
+    m.opacity = 0;
+  });
+  if (_gameOverGroup) _gameOverGroup.visible = false;
+}
+
+export function updateTitle(dt, t) {
   if (!titleMesh) return;
   titleMesh.position.y = 10 + Math.sin(t * 1.1) * 0.18;
   titleMesh.rotation.x = 0.22;
+
+  // Animate game-over text opacity
+  if (_gameOverGroup) {
+    const step = 1 - Math.exp(-dt * 2.0);
+    _gameOverOpacity += (_gameOverTarget - _gameOverOpacity) * step;
+    const visible = _gameOverOpacity > 0.005;
+    _gameOverGroup.visible = visible;
+    if (visible) {
+      _gameOverMats.forEach((m) => {
+        m.opacity = _gameOverOpacity;
+      });
+      _gameOverGroup.position.y = 5 + Math.sin(t * 0.9 + 1.5) * 0.15;
+    }
+  }
 }
 
 export function resizeTitle() {
@@ -165,6 +292,7 @@ export function resizeTitle() {
   const visibleWidth = halfW * 2;
   const s = Math.min(1.0, (visibleWidth * 0.88) / _titleNaturalWidth);
   titleMesh.scale.setScalar(s);
+  resizeGameOver();
 }
 
 /* ── setDarkMode — per-letter colors + dramatic spotlight in dark mode ── */
@@ -196,16 +324,17 @@ export function setDarkMode(dark) {
       side.metalness = 0.55;
       side.roughness = 0.2;
     } else {
-      front.color.set(0x2d0060);
-      front.emissive.set(0x2d0060);
-      front.emissiveIntensity = 0.3;
-      front.metalness = 0.35;
-      front.roughness = 0.25;
-      side.color.set(0x8833ff);
-      side.emissive.set(0x440088);
-      side.emissiveIntensity = 0.2;
-      side.metalness = 0.5;
-      side.roughness = 0.15;
+      const dc = DARK_LETTER_COLORS[i % DARK_LETTER_COLORS.length];
+      front.color.set(dc.front);
+      front.emissive.set(dc.emissive);
+      front.emissiveIntensity = 0.5;
+      front.metalness = 0.5;
+      front.roughness = 0.3;
+      side.color.set(dc.side);
+      side.emissive.set(dc.emissive);
+      side.emissiveIntensity = 0.4;
+      side.metalness = 0.55;
+      side.roughness = 0.2;
     }
   }
 }

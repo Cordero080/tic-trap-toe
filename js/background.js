@@ -48,6 +48,8 @@ import {
   updateTitle,
   resizeTitle,
   setDarkMode as setTitleDark,
+  showGameOver,
+  hideGameOver,
 } from "./title.js";
 
 /* ── Renderer ── */
@@ -61,6 +63,8 @@ const scene = new THREE.Scene();
 const LIGHT_BG = 0xf2f2f8;
 const DARK_BG = 0x0d0d18;
 scene.background = new THREE.Color(LIGHT_BG);
+const _bgTarget = new THREE.Color(LIGHT_BG);
+let _wasMatchOver = false;
 
 /* ── Camera ── */
 const camera = new THREE.PerspectiveCamera(
@@ -246,6 +250,9 @@ function doReset() {
   nextRoundBtn.style.display = "none";
   currentRound = 1;
   setRoundLabel();
+  _wasMatchOver = false;
+  _bgTarget.set(document.body.classList.contains("dark") ? DARK_BG : LIGHT_BG);
+  hideGameOver();
 }
 
 // Partial reset — keeps difficulty so the AI stays at the earned level
@@ -258,6 +265,9 @@ function doNextRound() {
   nextRoundBtn.style.display = "none";
   currentRound++;
   setRoundLabel();
+  _wasMatchOver = false;
+  _bgTarget.set(document.body.classList.contains("dark") ? DARK_BG : LIGHT_BG);
+  hideGameOver();
 }
 
 document.getElementById("reset-btn").addEventListener("click", doReset);
@@ -282,7 +292,9 @@ const themeBtn = document.getElementById("theme-toggle");
 
 function applyTheme(dark) {
   document.body.classList.toggle("dark", dark);
-  scene.background.set(dark ? DARK_BG : LIGHT_BG);
+  const newBg = dark ? DARK_BG : LIGHT_BG;
+  scene.background.set(newBg);
+  if (!_wasMatchOver) _bgTarget.set(newBg);
   themeBtn.textContent = dark ? "☀️" : "🌙";
   // Studio light — dramatic frontal + top in dark mode
   studioLight.intensity = dark ? 2.0 : 0;
@@ -375,8 +387,16 @@ function tick() {
   const dt = Math.min(t - prevT, 0.05);
   prevT = t;
 
+  // Detect match-over transition — fire once when match ends
+  if (matchOver && !_wasMatchOver) {
+    _wasMatchOver = true;
+    _bgTarget.set(0x141425); // deep purple-navy — noticeable but not pitch-black
+    showGameOver(matchWinner === "draw" ? "DRAW!" : `${matchWinner} WINS!`);
+  }
+  scene.background.lerp(_bgTarget, Math.min(1, dt * 1.2));
+
   updateCube(dt, t);
-  updateTitle(t);
+  updateTitle(dt, t);
   updateMessage();
   renderer.render(scene, camera);
 }
