@@ -310,7 +310,7 @@ function applyTheme(dark) {
 }
 
 // Restore saved preference
-applyTheme(localStorage.getItem("theme") === "dark");
+applyTheme(localStorage.getItem("theme") !== "light");
 
 themeBtn.addEventListener("click", () => {
   applyTheme(!document.body.classList.contains("dark"));

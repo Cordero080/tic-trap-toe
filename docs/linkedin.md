@@ -32,8 +32,7 @@ Built with Three.js and vanilla JavaScript.
 ## Changelog
 
 | Date       | What changed                                                                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-05-28 | Game-over 3D text ("X WINS!"/"O WINS!"/"DRAW!") with rainbow palette + background fade to deep navy on match end; unified title colors between light/dark mode; mobile-responsive scaling for game-over text |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- || 2026-05-28 | Dark mode is now the default for new visitors || 2026-05-28 | Game-over 3D text ("X WINS!"/"O WINS!"/"DRAW!") with rainbow palette + background fade to deep navy on match end; unified title colors between light/dark mode; mobile-responsive scaling for game-over text |
 | 2026-05-28 | Holographic black background on Reset and Play buttons, cache bust for service worker |
 | 2026-05-27 | Code audit cleanup — removed dead CSS (unused fonts, unreachable rules), deduplicated button glow styles, moved DOM listener to correct module, cleared root clutter |
 | 2026-05-17 | Deployed to Vercel, moved repo to tic-trap-toe, darkened landing overlay, fixed desc text visibility, added dark mode screenshots to README |
