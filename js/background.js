@@ -139,8 +139,6 @@ initTitle(scene, camera);
 initModel();
 showModel();
 initCeleb();
-// TEMP TEST
-setTimeout(() => showCeleb("X"), 1000);
 
 /* ── Input ── */
 const raycaster = new THREE.Raycaster();
