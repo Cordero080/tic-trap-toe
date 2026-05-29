@@ -1,4 +1,4 @@
-const CACHE_NAME = "tic-trap-toe-v3";
+const CACHE_NAME = "tic-trap-toe-v4";
 
 const LOCAL_ASSETS = [
   "/",
@@ -8,6 +8,8 @@ const LOCAL_ASSETS = [
   "/js/background.js",
   "/js/cube.js",
   "/js/title.js",
+  "/js/model.js",
+  "/js/celeb.js",
   "/manifest.json",
   "/icons/icon.svg",
 ];

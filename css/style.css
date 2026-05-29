@@ -50,6 +50,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: -1;
+  transition: opacity 0.8s ease;
 }
 
 /* === Board is hidden — Three.js renders it visually === */
@@ -466,8 +467,9 @@ h2 {
   inset: 0;
   z-index: 200;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 12vh;
   background: rgba(0, 0, 10, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -478,6 +480,21 @@ h2 {
 #landing-overlay.hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+#model-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#celeb-canvas {
+  position: fixed;
+  display: none;
+  pointer-events: none;
+  z-index: 150;
+  opacity: 0;
+  transition: opacity 0.9s ease;
 }
 
 /* No card — text floats directly over the spinning cube */

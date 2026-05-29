@@ -52,6 +52,8 @@ import {
   hideGameOver,
 } from "./title.js";
 import { primeAudio } from "./audio.js";
+import { initModel, updateModel, showModel, hideModel } from "./model.js";
+import { initCeleb, showCeleb, hideCeleb, updateCeleb } from "./celeb.js";
 
 /* ── Prime Web Audio on first gesture so iOS Safari unlocks the context ── */
 function _primeOnce() {
@@ -134,6 +136,11 @@ initCube(scene, (winner) => {
   });
 });
 initTitle(scene, camera);
+initModel();
+showModel();
+initCeleb();
+// TEMP TEST
+setTimeout(() => showCeleb("X"), 1000);
 
 /* ── Input ── */
 const raycaster = new THREE.Raycaster();
@@ -263,6 +270,7 @@ function doReset() {
   _wasMatchOver = false;
   _bgTarget.set(document.body.classList.contains("dark") ? DARK_BG : LIGHT_BG);
   hideGameOver();
+  hideCeleb();
 }
 
 // Partial reset — keeps difficulty so the AI stays at the earned level
@@ -278,6 +286,7 @@ function doNextRound() {
   _wasMatchOver = false;
   _bgTarget.set(document.body.classList.contains("dark") ? DARK_BG : LIGHT_BG);
   hideGameOver();
+  hideCeleb();
 }
 
 document.getElementById("reset-btn").addEventListener("click", doReset);
@@ -333,6 +342,7 @@ document.getElementById("play-btn").addEventListener("click", () => {
   landingOverlay.style.animation = "none";
   landingOverlay.style.opacity = "0";
   landingOverlay.style.pointerEvents = "none";
+  hideModel();
   setTimeout(() => {
     landingOverlay.style.display = "none";
   }, 500);
@@ -402,11 +412,14 @@ function tick() {
     _wasMatchOver = true;
     _bgTarget.set(0x141425); // deep purple-navy — noticeable but not pitch-black
     showGameOver(matchWinner === "draw" ? "DRAW!" : `${matchWinner} WINS!`);
+    showCeleb(matchWinner);
   }
   scene.background.lerp(_bgTarget, Math.min(1, dt * 1.2));
 
   updateCube(dt, t);
   updateTitle(dt, t);
+  updateModel(dt);
+  updateCeleb(dt);
   updateMessage();
   renderer.render(scene, camera);
 }

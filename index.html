@@ -22,7 +22,8 @@
         "imports": {
           "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
           "three/addons/loaders/FontLoader": "https://unpkg.com/three@0.160.0/examples/jsm/loaders/FontLoader.js",
-          "three/addons/geometries/TextGeometry": "https://unpkg.com/three@0.160.0/examples/jsm/geometries/TextGeometry.js"
+          "three/addons/geometries/TextGeometry": "https://unpkg.com/three@0.160.0/examples/jsm/geometries/TextGeometry.js",
+          "three/addons/loaders/GLTFLoader": "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js"
         }
       }
     </script>
@@ -31,6 +32,7 @@
   </head>
   <body>
     <canvas id="bg-canvas"></canvas>
+    <canvas id="celeb-canvas"></canvas>
 
     <h1>Tic-Trap-Toe</h1>
     <h2 id="message">Rotate to play</h2>
@@ -64,6 +66,7 @@
 
     <!-- Landing overlay — spins cube is visible behind the glass card -->
     <div id="landing-overlay">
+      <canvas id="model-canvas"></canvas>
       <div id="landing-card">
         <div id="landing-game-title">Tic-Trap-Toe</div>
         <p id="landing-tagline">
