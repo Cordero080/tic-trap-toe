@@ -74,8 +74,9 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 const scene = new THREE.Scene();
 const LIGHT_BG = 0xf2f2f8;
 const DARK_BG = 0x0d0d18;
-scene.background = new THREE.Color(LIGHT_BG);
-const _bgTarget = new THREE.Color(LIGHT_BG);
+const _initialDark = localStorage.getItem("theme") !== "light";
+scene.background = new THREE.Color(_initialDark ? DARK_BG : LIGHT_BG);
+const _bgTarget = new THREE.Color(_initialDark ? DARK_BG : LIGHT_BG);
 let _wasMatchOver = false;
 
 /* ── Camera ── */
