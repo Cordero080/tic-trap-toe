@@ -35,6 +35,7 @@ Built with Three.js and vanilla JavaScript.
 
 | Date       | What changed                                                                                                                                                                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-05-29 | Full architecture refactor — src/ for JS, public/ for fonts/icons/models/screenshots, CSS split into per-component files; white-celeb.glb for light mode match win; theme toggle on landing page; old flat structure removed |
 | 2026-05-29 | Light mode cat on landing page (greeting-light.glb, Draco-compressed); dark/light characters swap instantly on theme toggle; tiered cube rotation — tier 3 spring-locks onto last face with breath idle, tier 2 2× speed between two remaining; game-over text moves to title position, title hides on match end |
 | 2026-05-29 | Y-axis cube steering toward remaining unfinished side faces (1–2 left → rotation hunts for them); SW bumped to v5 to fix stale-cache bug preventing celeb animation from showing on match win                |
 | 2026-05-29 | GLB animated characters — greeting character on landing page, celebration character under winner's score (fades in, plays full animation, fades out); cube dims on mobile during celeb; service worker updated |

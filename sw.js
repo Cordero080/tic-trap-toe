@@ -1,17 +1,25 @@
-const CACHE_NAME = "tic-trap-toe-v6";
+const CACHE_NAME = "tic-trap-toe-v7";
 
 const LOCAL_ASSETS = [
   "/",
-  "/css/style.css",
-  "/js/app.js",
-  "/js/audio.js",
-  "/js/background.js",
-  "/js/cube.js",
-  "/js/title.js",
-  "/js/model.js",
-  "/js/celeb.js",
+  "/src/styles/base.css",
+  "/src/styles/dark.css",
+  "/src/components/cube/cube.css",
+  "/src/components/hud/hud.css",
+  "/src/components/landing/landing.css",
+  "/src/components/model/model.css",
+  "/src/components/celeb/celeb.css",
+  "/src/components/modal/modal.css",
+  "/src/components/title/title.css",
+  "/src/app.js",
+  "/src/audio.js",
+  "/src/background.js",
+  "/src/components/cube/cube.js",
+  "/src/components/title/title.js",
+  "/src/components/model/model.js",
+  "/src/components/celeb/celeb.js",
   "/manifest.json",
-  "/icons/icon.svg",
+  "/public/icons/icon.svg",
 ];
 
 self.addEventListener("install", (event) => {

@@ -1,0 +1,9 @@
+/* === Celeb canvas — fixed overlay shown on match win === */
+#celeb-canvas {
+  position: fixed;
+  display: none;
+  pointer-events: none;
+  z-index: 150;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}

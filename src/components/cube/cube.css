@@ -1,0 +1,216 @@
+/* === Round Label — shown at top on round 2+ === */
+.round-label {
+  position: fixed;
+  top: 186px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  font-family: "ClashDisplay", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  pointer-events: none;
+  /* Cycling rainbow gradient — trippy, not just purple */
+  background: linear-gradient(
+    90deg,
+    #ff00cc,
+    #aa00ff,
+    #0055ff,
+    #00ccff,
+    #00ffaa,
+    #ccff00,
+    #ff6600,
+    #ff00cc
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbow-move 3s linear infinite;
+}
+
+@keyframes rainbow-move {
+  from {
+    background-position: 0% center;
+  }
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* === Score Bar === */
+.score-bar {
+  position: fixed;
+  top: 200px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 120px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.score-side {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.score-label {
+  font-family: "ClashDisplay", sans-serif;
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  opacity: 0.55;
+  color: #2d0060;
+}
+
+.score-num {
+  font-family: "ClashDisplay", sans-serif;
+  font-weight: 700;
+  font-size: 3.2rem;
+  line-height: 1;
+  color: #2d0060;
+  display: inline-block;
+  /* stacked 3-D shadow — each layer shifts 1px deeper */
+  text-shadow:
+    1px 1px 0 rgba(45, 0, 96, 0.35),
+    2px 2px 0 rgba(45, 0, 96, 0.28),
+    3px 3px 0 rgba(45, 0, 96, 0.2),
+    4px 4px 0 rgba(45, 0, 96, 0.14),
+    5px 5px 10px rgba(45, 0, 96, 0.3);
+}
+
+/* === Score pop / glitch animation === */
+@keyframes score-glitch {
+  0% {
+    transform: scale(1) skewX(0deg);
+    color: #2d0060;
+    text-shadow: none;
+  }
+  8% {
+    transform: scale(1.7) skewX(-10deg);
+    color: #ff00ff;
+    text-shadow:
+      4px 0 #00ffff,
+      -4px 0 #ff00ff;
+  }
+  18% {
+    transform: scale(0.65) skewX(8deg);
+    color: #00ffff;
+    text-shadow:
+      -3px 0 #ff00ff,
+      3px 0 #00ffff;
+  }
+  28% {
+    transform: scale(1.4) skewX(-6deg);
+    color: #ffff00;
+    text-shadow: 3px 0 #ff4400;
+  }
+  38% {
+    transform: scale(0.8) skewX(5deg);
+    color: #ff4400;
+    text-shadow: -2px 0 #44ff00;
+  }
+  50% {
+    transform: scale(1.25) skewX(-3deg);
+    color: #44ff00;
+    text-shadow: 2px 0 #0088ff;
+  }
+  62% {
+    transform: scale(0.9) skewX(2deg);
+    color: #ff00ff;
+    text-shadow: none;
+  }
+  75% {
+    transform: scale(1.1);
+    color: #0088ff;
+  }
+  88% {
+    transform: scale(1.02);
+    color: #2d0060;
+  }
+  100% {
+    transform: scale(1) skewX(0deg);
+    color: #2d0060;
+    text-shadow: none;
+  }
+}
+
+.score-pop {
+  animation: score-glitch 0.58s steps(1) forwards;
+}
+
+/* === Match-win score — yellow / red diagonal stripes === */
+.score-match-win {
+  background: repeating-linear-gradient(
+    -55deg,
+    #ffd700 0px,
+    #ffd700 8px,
+    #ff2200 8px,
+    #ff2200 16px
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: none !important;
+  /* Replace dark purple 3-D shadow with a warm golden one so the stripe stays vivid */
+  text-shadow:
+    1px 1px 0 rgba(200, 80, 0, 0.45),
+    2px 2px 0 rgba(180, 60, 0, 0.35),
+    3px 3px 0 rgba(160, 40, 0, 0.25),
+    4px 4px 8px rgba(255, 140, 0, 0.4);
+}
+
+/* === Responsive === */
+
+/* Tablet — 601–900px */
+@media (max-width: 900px) and (min-width: 601px) {
+  .round-label {
+    top: 152px;
+  }
+  .score-bar {
+    top: 168px;
+    padding: 0 60px;
+  }
+  .score-num {
+    font-size: 2.6rem;
+  }
+}
+
+/* Mobile — ≤ 600px */
+@media (max-width: 600px) {
+  .round-label {
+    top: 124px;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+  }
+  .score-bar {
+    top: 142px;
+    padding: 0 14px;
+  }
+  .score-num {
+    font-size: 1.9rem;
+  }
+  .score-label {
+    font-size: 0.7rem;
+  }
+}
+
+/* Small phones — ≤ 400px */
+@media (max-width: 400px) {
+  .round-label {
+    top: 104px;
+    font-size: 0.6rem;
+  }
+  .score-bar {
+    top: 120px;
+    padding: 0 8px;
+  }
+  .score-num {
+    font-size: 1.6rem;
+  }
+}

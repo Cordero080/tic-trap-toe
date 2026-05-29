@@ -1,0 +1,6 @@
+/* === Model canvas — full-viewport overlay inside #landing-overlay === */
+#model-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}

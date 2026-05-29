@@ -10,7 +10,7 @@
 
 Six boards. One rotating cube. The cube never stops — faces drift toward you, become playable, then spin away. You don't get to pick which game you're in. First to win 3 faces wins the match.
 
-![Title and cube overview](assets/screenshots/title-cube-overview.png)
+![Title and cube overview](public/screenshots/title-cube-overview.png)
 
 ---
 
@@ -49,9 +49,9 @@ There's no timer. No forced turn order between faces. **If you can see the cells
 - The cube rattles with 5 fast chirped X-axis shakes (gaps between each shake shorten)
 - A soft bass-drum poof fires with short reverb
 
-![Golden win bar](assets/screenshots/gold-win-bar.png)
-![Confetti burst](assets/screenshots/confetti-face-win.png)
-![Match win score](assets/screenshots/match-win-score.jpg)
+![Golden win bar](public/screenshots/gold-win-bar.png)
+![Confetti burst](public/screenshots/confetti-face-win.png)
+![Match win score](public/screenshots/match-win-score.jpg)
 
 ---
 
@@ -86,12 +86,16 @@ The cube never stops spinning; it just stops being equally fair to faces that ar
 
 - **Three.js** via importmap CDN — raycasting, `TextGeometry`, per-frame animation
 - Vanilla JS ES modules, no build step:
-  - `app.js` — pure game logic, adaptive AI (minimax + slop-rate difficulty ladder)
-  - `cube.js` — all 3-D geometry, marks, slabs, confetti, win visuals, adaptive steering
-  - `title.js` — extruded 3-D title with foreshortening tilt
-  - `audio.js` — fully synthesized Web Audio (zero audio files)
-  - `background.js` — scene, camera, input, DOM, round/difficulty state, tick loop
-- CSS — conic-gradient button glow, glitch score animation, diagonal-stripe match-win, rainbow round label, dark mode with holographic shimmer
+  - `src/app.js` — pure game logic, adaptive AI (minimax + slop-rate difficulty ladder)
+  - `src/components/cube/cube.js` — all 3-D geometry, marks, slabs, confetti, win visuals, adaptive steering
+  - `src/components/title/title.js` — extruded 3-D title with foreshortening tilt
+  - `src/audio.js` — fully synthesized Web Audio (zero audio files)
+  - `src/background.js` — scene, camera, input, DOM, round/difficulty state, tick loop
+  - `src/components/model/model.js` — landing overlay GLB character (dark + light)
+  - `src/components/celeb/celeb.js` — match-win celebration GLB character (dark + light)
+- CSS split across `src/styles/` (base, dark mode) and `src/components/*/` (per-component):
+  - conic-gradient button glow, glitch score animation, diagonal-stripe match-win, rainbow round label, dark mode with holographic shimmer
+- Static assets in `public/` — fonts, icons, models (GLBs), screenshots
 
 ---
 
@@ -105,8 +109,8 @@ Toggle the 🌙 button (bottom-left corner). Persists via `localStorage`.
 - **Borders** — rainbow cycling preserved, slightly desaturated for elegance
 - **Lighting** — frontal studio spotlight, dimmed ambient, repositioned sun for dramatic depth
 
-![Dark mode gameplay — face won](assets/screenshots/Screenshot%202026-05-16%20at%2011.36.11%20PM.png)
-![Dark mode mobile — multi-face progress](assets/screenshots/Screenshot%202026-05-16%20at%2011.37.04%20PM.png)
+![Dark mode gameplay — face won](public/screenshots/Screenshot%202026-05-16%20at%2011.36.11%20PM.png)
+![Dark mode mobile — multi-face progress](public/screenshots/Screenshot%202026-05-16%20at%2011.37.04%20PM.png)
 
 ---
 

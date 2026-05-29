@@ -5,14 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#07070f" />
-    <link rel="apple-touch-icon" href="/icons/icon.svg" />
+    <link rel="apple-touch-icon" href="/public/icons/icon.svg" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./src/styles/base.css" />
+    <link rel="stylesheet" href="./src/styles/dark.css" />
+    <link rel="stylesheet" href="./src/components/cube/cube.css" />
+    <link rel="stylesheet" href="./src/components/hud/hud.css" />
+    <link rel="stylesheet" href="./src/components/landing/landing.css" />
+    <link rel="stylesheet" href="./src/components/model/model.css" />
+    <link rel="stylesheet" href="./src/components/celeb/celeb.css" />
+    <link rel="stylesheet" href="./src/components/modal/modal.css" />
+    <link rel="stylesheet" href="./src/components/title/title.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500&family=Doto:wght@100..900&family=Press+Start+2P&display=swap"
       rel="stylesheet"
@@ -28,7 +36,7 @@
         }
       }
     </script>
-    <script type="module" src="./js/background.js"></script>
+    <script type="module" src="./src/background.js"></script>
     <title>Tic-Trap-Toe</title>
   </head>
   <body class="dark">
@@ -68,6 +76,7 @@
     <!-- Landing overlay — spins cube is visible behind the glass card -->
     <div id="landing-overlay">
       <canvas id="model-canvas"></canvas>
+      <button id="landing-theme-toggle" title="Toggle dark/light mode"></button>
       <div id="landing-card">
         <div id="landing-game-title">Tic-Trap-Toe</div>
         <p id="landing-tagline">

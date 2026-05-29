@@ -1,0 +1,4 @@
+/* title.css — no DOM styles needed.
+ * The title is rendered entirely in Three.js as a 3-D extruded TextGeometry mesh.
+ * All title DOM elements use h1 { display: none } in base.css.
+ */

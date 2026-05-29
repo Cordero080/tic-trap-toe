@@ -1,0 +1,91 @@
+/* ═══ About Modal ════════════════════════════════════════════════════════════ */
+
+#about-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 10, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+#about-modal.visible {
+  display: flex;
+  animation: fade-in 0.3s ease both;
+}
+
+#about-card {
+  position: relative;
+  max-width: 440px;
+  width: 90%;
+  padding: 36px 36px 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  box-shadow:
+    0 0 60px rgba(80, 30, 200, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(200, 185, 240, 0.75);
+}
+
+#about-card h3 {
+  font-family: "ClashDisplay", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(180, 140, 255, 0.9);
+  margin: 0 0 10px;
+}
+
+#about-card h3 + * {
+  margin-top: 0;
+}
+
+#about-card h3:not(:first-of-type) {
+  margin-top: 22px;
+}
+
+#about-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+#about-card li {
+  margin-bottom: 5px;
+}
+
+#about-card p {
+  margin: 0;
+}
+
+#about-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: rgba(200, 180, 255, 0.4);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+#about-close:hover {
+  color: rgba(200, 180, 255, 0.9);
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  #about-card {
+    padding: 28px 20px 22px;
+  }
+}
