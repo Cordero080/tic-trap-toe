@@ -24,14 +24,14 @@ import {
   matchOver,
   makeMove,
   getComputerMove,
-} from "./app.js";
+} from "../../app.js";
 import {
   playClick,
   playThud,
   playRobotVoice,
   playMatchWin,
   playPoof,
-} from "./audio.js";
+} from "../../audio.js";
 
 /* ── Board constants ── */
 const S = 9;

@@ -43,7 +43,7 @@ function _placeModel(model) {
   const center = box.getCenter(new THREE.Vector3());
   const scale = 0.95 / Math.max(size.y, 0.001);
   model.scale.setScalar(scale);
-  model.position.set(-center.x * scale - 0.4, -box.min.y * scale - 2.95, 0);
+  model.position.set(-center.x * scale - 0.25, -box.min.y * scale - 2.95, 0);
 }
 
 function _loadChar(key, path) {
@@ -113,8 +113,8 @@ export function initModel() {
   // Read initial theme from body class (set before JS runs)
   _isDark = document.body.classList.contains("dark");
 
-  _loadChar("dark", "/greeting.glb");
-  _loadChar("light", "/greeting-light.glb");
+  _loadChar("dark", "/public/models/greeting.glb");
+  _loadChar("light", "/public/models/greeting-light.glb");
 }
 
 export function setDarkMode(dark) {

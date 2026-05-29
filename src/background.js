@@ -42,7 +42,7 @@ import {
   setInteractiveMode,
   applyDrag,
   setDarkMode as setCubeDark,
-} from "./cube.js";
+} from "./components/cube/cube.js";
 import {
   initTitle,
   updateTitle,
@@ -50,7 +50,7 @@ import {
   setDarkMode as setTitleDark,
   showGameOver,
   hideGameOver,
-} from "./title.js";
+} from "./components/title/title.js";
 import { primeAudio } from "./audio.js";
 import {
   initModel,
@@ -58,8 +58,14 @@ import {
   showModel,
   hideModel,
   setDarkMode as setModelDark,
-} from "./model.js";
-import { initCeleb, showCeleb, hideCeleb, updateCeleb } from "./celeb.js";
+} from "./components/model/model.js";
+import {
+  initCeleb,
+  showCeleb,
+  hideCeleb,
+  updateCeleb,
+  setDarkMode as setCelebDark,
+} from "./components/celeb/celeb.js";
 
 /* ── Prime Web Audio on first gesture so iOS Safari unlocks the context ── */
 function _primeOnce() {
@@ -315,13 +321,13 @@ window.addEventListener("resize", () => {
 
 /* ── Dark-mode toggle ── */
 const themeBtn = document.getElementById("theme-toggle");
+const landingThemeBtn = document.getElementById("landing-theme-toggle");
 
 function applyTheme(dark) {
   document.body.classList.toggle("dark", dark);
   const newBg = dark ? DARK_BG : LIGHT_BG;
   scene.background.set(newBg);
   if (!_wasMatchOver) _bgTarget.set(newBg);
-  themeBtn.textContent = dark ? "☀️" : "🌙";
   // Studio light — dramatic frontal + top in dark mode
   studioLight.intensity = dark ? 2.0 : 0;
   ambientLight.intensity = dark ? 0.2 : 0.6;
@@ -331,6 +337,7 @@ function applyTheme(dark) {
   setCubeDark(dark);
   setTitleDark(dark);
   setModelDark(dark);
+  setCelebDark(dark);
   try {
     localStorage.setItem("theme_v2", dark ? "dark" : "light");
   } catch {}
@@ -343,6 +350,12 @@ applyTheme(localStorage.getItem("theme_v2") !== "light");
 themeBtn.addEventListener("click", () => {
   applyTheme(!document.body.classList.contains("dark"));
 });
+
+if (landingThemeBtn) {
+  landingThemeBtn.addEventListener("click", () => {
+    applyTheme(!document.body.classList.contains("dark"));
+  });
+}
 
 /* ── Landing overlay ── */
 const landingOverlay = document.getElementById("landing-overlay");

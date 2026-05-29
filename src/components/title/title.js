@@ -16,8 +16,8 @@
  *
  *  To swap fonts later:
  *    1. Go to gero3.github.io/facetype.js, upload PressStart2P-Regular.ttf
- *    2. Download the JSON → save as css/fonts/PressStart2P.typeface.json
- *    3. Change the URL in initTitle() below to './css/fonts/PressStart2P.typeface.json'
+ *    2. Download the JSON → save as public/fonts/PressStart2P.typeface.json
+ *    3. Change the URL in initTitle() below to '/public/fonts/PressStart2P.typeface.json'
  * ── */
 
 import * as THREE from "three";
