@@ -74,7 +74,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 const scene = new THREE.Scene();
 const LIGHT_BG = 0xf2f2f8;
 const DARK_BG = 0x0d0d18;
-const _initialDark = localStorage.getItem("theme") !== "light";
+const _initialDark = localStorage.getItem("theme_v2") !== "light";
 scene.background = new THREE.Color(_initialDark ? DARK_BG : LIGHT_BG);
 const _bgTarget = new THREE.Color(_initialDark ? DARK_BG : LIGHT_BG);
 let _wasMatchOver = false;
@@ -325,12 +325,13 @@ function applyTheme(dark) {
   setCubeDark(dark);
   setTitleDark(dark);
   try {
-    localStorage.setItem("theme", dark ? "dark" : "light");
+    localStorage.setItem("theme_v2", dark ? "dark" : "light");
   } catch {}
 }
 
-// Restore saved preference
-applyTheme(localStorage.getItem("theme") !== "light");
+// Restore saved preference — "theme_v2" key resets anyone who had the old
+// "light" default stored before dark mode became the site default.
+applyTheme(localStorage.getItem("theme_v2") !== "light");
 
 themeBtn.addEventListener("click", () => {
   applyTheme(!document.body.classList.contains("dark"));
