@@ -113,16 +113,30 @@ export function initModel() {
   // Read initial theme from body class (set before JS runs)
   _isDark = document.body.classList.contains("dark");
 
-  _loadChar("dark", "/public/models/greeting.glb");
-  _loadChar("light", "/public/models/greeting-light.glb");
+  // Only load the active theme's character at startup; load the other on first toggle
+  const activeKey = _isDark ? "dark" : "light";
+  const activePath = _isDark
+    ? "/public/models/greeting.glb"
+    : "/public/models/greeting-light.glb";
+  _loadChar(activeKey, activePath);
 }
 
 export function setDarkMode(dark) {
   if (_isDark === dark) return;
   _isDark = dark;
+
+  const newKey = dark ? "dark" : "light";
+  const newPath = dark
+    ? "/public/models/greeting.glb"
+    : "/public/models/greeting-light.glb";
+
+  // Lazy-load the other theme's character on first toggle
+  if (!_chars[newKey]) {
+    _loadChar(newKey, newPath);
+  }
+
   if (!_shouldBeVisible) return;
-  // Swap visible character instantly
-  const showKey = dark ? "dark" : "light";
+  const showKey = newKey;
   const hideKey = dark ? "light" : "dark";
   if (_chars[showKey]) _chars[showKey].model.visible = true;
   if (_chars[hideKey]) _chars[hideKey].model.visible = false;

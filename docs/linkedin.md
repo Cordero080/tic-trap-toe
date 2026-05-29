@@ -14,9 +14,9 @@ Six boards. One rotating cube. The cube never stops.
 
 This isn't normal tic-tac-toe — you can't stall, you can't force a draw. The board you were about to win might spin away before your next move.
 
-The cube now actively steers toward remaining unfinished faces. One face left? The rotation locks onto it and holds there with a slow idle drift — no more waiting. Two faces? It cycles between them at double speed.
+The cube steers toward remaining unfinished faces. One face left? The rotation locks onto it and holds there with a slow idle drift. Two faces? It cycles between them at double speed.
 
-Light and dark mode now have their own characters. A cat greets you on the landing page in light mode. Switch to dark and the bro takes over. Both loaded with Draco compression, both rendered in a separate canvas so they're never blurred by the overlay.
+Light and dark mode now have their own characters. A cat greets you on the landing page in light mode. Switch to dark and the bro takes over. Each character loads on demand — page startup is just one model instead of four.
 
 The AI starts casual and becomes unbeatable as you rack up face wins. Zero build step, zero audio files.
 
@@ -35,6 +35,7 @@ Built with Three.js and vanilla JavaScript.
 
 | Date       | What changed                                                                                                                                                                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-05-29 | Lazy-load GLB characters — only the active theme's model loads at startup; inactive theme loads on first toggle; SW no longer caches 27 MB of models; cache drops from ~29 MB to ~2 MB |
 | 2026-05-29 | Full architecture refactor — src/ for JS, public/ for fonts/icons/models/screenshots, CSS split into per-component files; white-celeb.glb for light mode match win; theme toggle on landing page; old flat structure removed |
 | 2026-05-29 | Light mode cat on landing page (greeting-light.glb, Draco-compressed); dark/light characters swap instantly on theme toggle; tiered cube rotation — tier 3 spring-locks onto last face with breath idle, tier 2 2× speed between two remaining; game-over text moves to title position, title hides on match end |
 | 2026-05-29 | Y-axis cube steering toward remaining unfinished side faces (1–2 left → rotation hunts for them); SW bumped to v5 to fix stale-cache bug preventing celeb animation from showing on match win                |

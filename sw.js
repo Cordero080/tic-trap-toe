@@ -1,4 +1,4 @@
-const CACHE_NAME = "tic-trap-toe-v7";
+const CACHE_NAME = "tic-trap-toe-v8";
 
 const LOCAL_ASSETS = [
   "/",
@@ -55,6 +55,9 @@ self.addEventListener("fetch", (event) => {
   ) {
     return;
   }
+
+  // GLB models are large — let the browser HTTP cache handle them
+  if (url.pathname.startsWith("/public/models/")) return;
 
   if (url.origin === self.location.origin) {
     event.respondWith(cacheFirst(event.request));

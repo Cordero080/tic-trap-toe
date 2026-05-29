@@ -126,8 +126,8 @@ function _loadChar(charObj, path) {
 
       charObj.loaded = true;
 
-      // If both chars are loaded and a winner is pending, trigger now
-      if (_pendingWinner && _dark.loaded && _light.loaded) {
+      // If this is the active character and a winner is pending, trigger now
+      if (_pendingWinner && charObj === _char()) {
         _trigger(_pendingWinner);
         _pendingWinner = null;
       }
@@ -163,12 +163,22 @@ export function initCeleb() {
   // Read initial theme from body class
   _isDark = document.body.classList.contains("dark");
 
-  _loadChar(_dark, "/public/models/bro-celeb.glb");
-  _loadChar(_light, "/public/models/white-celeb.glb");
+  // Only load the active theme's character at startup; load the other on first toggle
+  if (_isDark) {
+    _loadChar(_dark, "/public/models/bro-celeb.glb");
+  } else {
+    _loadChar(_light, "/public/models/white-celeb.glb");
+  }
 }
 
 export function setDarkMode(dark) {
   _isDark = dark;
+  // Lazy-load the other theme's character on first toggle
+  if (dark && !_dark.loaded && !_dark.model) {
+    _loadChar(_dark, "/public/models/bro-celeb.glb");
+  } else if (!dark && !_light.loaded && !_light.model) {
+    _loadChar(_light, "/public/models/white-celeb.glb");
+  }
 }
 
 function _trigger(winner) {
