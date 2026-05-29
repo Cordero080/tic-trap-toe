@@ -73,7 +73,12 @@ When playing vs Computer, the AI gets harder every time you win a face — and t
 
 ## Adaptive Cube Steering
 
-As faces get claimed, the cube stops giving equal time to all six sides. When 3 or fewer faces remain in play, the rotation biases toward showing the unfinished faces — arriving at their angles faster and lingering longer. The fewer faces left, the stronger the pull. The cube never stops spinning; it just stops being equally fair to faces that are already done.
+As faces get claimed, the cube stops giving equal time to all six sides. When few faces remain in play, the rotation biases toward showing the unfinished ones — arriving at their angles faster and lingering longer. The fewer faces left, the stronger the pull.
+
+- **X-axis** biases toward top or bottom if one of them is the last active face
+- **Y-axis** steers toward the nearest unfinished side face (front, back, left, right) when only 1–2 remain — so you're never waiting forever for the one face you need
+
+The cube never stops spinning; it just stops being equally fair to faces that are already done.
 
 ---
 

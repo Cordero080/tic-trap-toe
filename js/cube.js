@@ -748,8 +748,30 @@ export function updateCube(dt, t) {
     // ── Y rotation — constant speed with occasional direction flip ───────────
     // Math.sign(Math.sin(...)) sits at +1 or -1 for long stretches, flipping
     // every ~35s. The lerp smooths the flip into a ~0.4s reversal, not a crawl.
-    const targetVel = 0.22 * (Math.sign(Math.sin(t * 0.09)) || 1);
-    rotVelY += (targetVel - rotVelY) * Math.min(1, 8.0 * dt);
+    const baseVel = 0.22 * (Math.sign(Math.sin(t * 0.09)) || 1);
+    // Steer toward remaining unfinished side faces (0=front,1=back,4=right,5=left)
+    // when only 1 or 2 side faces are left so the player isn't waiting forever.
+    const sideActive = activeIdxs.filter((i) => i !== 2 && i !== 3);
+    let effectiveVel = baseVel;
+    if (sideActive.length >= 1 && sideActive.length <= 2) {
+      // Find the nearest unfinished side face by angular distance from current rotY
+      let minErr = Infinity;
+      for (const fi of sideActive) {
+        const ideal = -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
+        // Wrap error to [-π, π]
+        let err =
+          ((((ideal - rotY) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) -
+          Math.PI;
+        if (Math.abs(err) < Math.abs(minErr)) minErr = err;
+      }
+      // More aggressive steering with 1 face left than 2
+      const steerW = sideActive.length === 1 ? 0.88 : 0.55;
+      if (Math.abs(minErr) > 0.35) {
+        effectiveVel =
+          baseVel * (1 - steerW) + Math.sign(minErr) * 0.22 * steerW;
+      }
+    }
+    rotVelY += (effectiveVel - rotVelY) * Math.min(1, 8.0 * dt);
     rotY += rotVelY * dt;
     cube.rotation.y = rotY;
 

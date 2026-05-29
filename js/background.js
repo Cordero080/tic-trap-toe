@@ -262,6 +262,8 @@ function doReset() {
   resetCubeVisuals();
   scoreXEl.classList.remove("score-match-win");
   scoreOEl.classList.remove("score-match-win");
+  scoreXEl.textContent = "0";
+  scoreOEl.textContent = "0";
   nextRoundBtn.style.display = "none";
   currentRound = 1;
   setRoundLabel();
