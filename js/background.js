@@ -52,7 +52,13 @@ import {
   hideGameOver,
 } from "./title.js";
 import { primeAudio } from "./audio.js";
-import { initModel, updateModel, showModel, hideModel } from "./model.js";
+import {
+  initModel,
+  updateModel,
+  showModel,
+  hideModel,
+  setDarkMode as setModelDark,
+} from "./model.js";
 import { initCeleb, showCeleb, hideCeleb, updateCeleb } from "./celeb.js";
 
 /* ── Prime Web Audio on first gesture so iOS Safari unlocks the context ── */
@@ -324,6 +330,7 @@ function applyTheme(dark) {
   // Invert 3-D materials
   setCubeDark(dark);
   setTitleDark(dark);
+  setModelDark(dark);
   try {
     localStorage.setItem("theme_v2", dark ? "dark" : "light");
   } catch {}

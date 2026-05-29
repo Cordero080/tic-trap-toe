@@ -227,8 +227,8 @@ function buildGameOverMesh(text) {
     m.position.y += cy;
   });
 
-  group.position.set(0, 5, 2);
-  group.rotation.x = 0.15;
+  group.position.set(0, 10, 2);
+  group.rotation.x = 0.22; // match title tilt
   group.visible = false;
   _gameOverGroup = group;
   _scene.add(group);
@@ -236,6 +236,9 @@ function buildGameOverMesh(text) {
   const goBox = new THREE.Box3().setFromObject(group);
   _gameOverNaturalWidth = goBox.max.x - goBox.min.x;
   resizeGameOver();
+
+  // Hide the title so game-over text takes its place cleanly
+  if (titleMesh) titleMesh.visible = false;
 }
 
 function resizeGameOver() {
@@ -244,12 +247,14 @@ function resizeGameOver() {
   const halfW =
     dist * Math.tan((_camera.fov * Math.PI) / 180 / 2) * _camera.aspect;
   const visibleWidth = halfW * 2;
-  const s = Math.min(1.2, (visibleWidth * 0.72) / _gameOverNaturalWidth);
+  // Same formula as resizeTitle so it occupies the same horizontal footprint
+  const s = Math.min(1.0, (visibleWidth * 0.88) / _gameOverNaturalWidth);
   _gameOverGroup.scale.setScalar(s);
 }
 
 export function showGameOver(text) {
   _gameOverTarget = 1;
+  if (titleMesh) titleMesh.visible = false;
   if (_font) buildGameOverMesh(text);
   else _pendingGameOver = text;
 }
@@ -262,6 +267,7 @@ export function hideGameOver() {
     m.opacity = 0;
   });
   if (_gameOverGroup) _gameOverGroup.visible = false;
+  if (titleMesh) titleMesh.visible = true;
 }
 
 export function updateTitle(dt, t) {
@@ -279,7 +285,7 @@ export function updateTitle(dt, t) {
       _gameOverMats.forEach((m) => {
         m.opacity = _gameOverOpacity;
       });
-      _gameOverGroup.position.y = 5 + Math.sin(t * 0.9 + 1.5) * 0.15;
+      _gameOverGroup.position.y = 10 + Math.sin(t * 1.1) * 0.18;
     }
   }
 }

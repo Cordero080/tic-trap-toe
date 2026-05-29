@@ -103,6 +103,7 @@ let frozenRotX = 0;
 // Accumulated Y rotation with direction flips
 let rotY = 0;
 let rotVelY = 0.22;
+let _lockBlend = 0; // 0 = free spin, 1 = fully locked onto last face
 
 // X-axis bias — shifts the center of the sine oscillation toward the top or
 // bottom face when one of them is the last remaining active face.
@@ -652,6 +653,7 @@ export function resetCubeVisuals() {
   rotY = 0;
   rotVelY = 0.22;
   xOffset = 0;
+  _lockBlend = 0;
 
   hoverMeshes.forEach((hv) => {
     hv.visible = false;
@@ -745,63 +747,103 @@ export function updateCube(dt, t) {
     }, []);
     const activeCount = activeIdxs.length; // used for X tilt and xBias below
 
-    // ── Y rotation — constant speed with occasional direction flip ───────────
-    // Math.sign(Math.sin(...)) sits at +1 or -1 for long stretches, flipping
-    // every ~35s. The lerp smooths the flip into a ~0.4s reversal, not a crawl.
-    const baseVel = 0.22 * (Math.sign(Math.sin(t * 0.09)) || 1);
-    // Steer toward remaining unfinished side faces (0=front,1=back,4=right,5=left)
-    // when only 1 or 2 side faces are left so the player isn't waiting forever.
-    const sideActive = activeIdxs.filter((i) => i !== 2 && i !== 3);
-    let effectiveVel = baseVel;
-    if (sideActive.length >= 1 && sideActive.length <= 2) {
-      // Find the nearest unfinished side face by angular distance from current rotY
-      let minErr = Infinity;
-      for (const fi of sideActive) {
-        const ideal = -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
-        // Wrap error to [-π, π]
-        let err =
-          ((((ideal - rotY) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) -
-          Math.PI;
-        if (Math.abs(err) < Math.abs(minErr)) minErr = err;
+    // ── Tiered rotation ───────────────────────────────────────────────────────
+    // Tier 3 (1 face left)  : spring-lock onto the face + gentle breath idle
+    // Tier 2 (2 faces left) : 2× speed, strong steer between the remaining two
+    // Tier 1 (3+ faces left): natural spin with mild bias toward unfinished faces
+    const tier = activeCount <= 1 ? 3 : activeCount === 2 ? 2 : 1;
+    _lockBlend += ((tier === 3 ? 1 : 0) - _lockBlend) * Math.min(1, 1.5 * dt);
+
+    if (tier === 3) {
+      const fi = activeIdxs[0];
+      const isTopBottom = fi === 2 || fi === 3;
+
+      // Side faces: swing Y to point the face at the camera.
+      // Top/bottom: Y is irrelevant — round to nearest π/2 so it stops cleanly.
+      const idealY = isTopBottom
+        ? Math.round(rotY / (Math.PI / 2)) * (Math.PI / 2)
+        : -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
+      const idealX = fi === 2 ? -Math.PI / 2 : fi === 3 ? Math.PI / 2 : 0;
+
+      // Overdamped angular spring on Y — settles without bouncing
+      const errY =
+        ((((idealY - rotY) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) -
+        Math.PI;
+      rotVelY += (errY * 3.0 - rotVelY * 4.5) * dt;
+      rotY += rotVelY * dt;
+
+      // Gentle breath once locked — ±5° slow rock so the cube stays alive
+      const breathY = Math.sin(t * 0.31) * 0.06 * _lockBlend;
+      const breathX = Math.sin(t * 0.19) * 0.04 * _lockBlend;
+      cube.rotation.y = rotY + breathY;
+
+      // X: big sine fades out, angle springs toward ideal + breath
+      xOffset += (idealX - xOffset) * Math.min(1, 2.5 * dt);
+      cube.rotation.x =
+        Math.sin(t * 0.13) * 1.1 * (1 - _lockBlend) + xOffset + breathX;
+
+      // Z: fade to zero as lock engages
+      cube.rotation.z =
+        (Math.sin(t * 0.07) * 0.22 + Math.sin(t * 0.19) * 0.1) *
+        (1 - _lockBlend);
+    } else {
+      // ── Tier 1 / 2 ────────────────────────────────────────────────────────
+      const speed = tier === 2 ? 0.44 : 0.22;
+      const baseVel = speed * (Math.sign(Math.sin(t * 0.09)) || 1);
+      let effectiveVel = baseVel;
+
+      if (tier === 2) {
+        // Steer toward whichever of the 2 remaining faces is angularly nearest
+        let minErr = Infinity;
+        for (const fi of activeIdxs) {
+          const ideal = -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
+          const err =
+            ((((ideal - rotY) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) -
+            Math.PI;
+          if (Math.abs(err) < Math.abs(minErr)) minErr = err;
+        }
+        if (Math.abs(minErr) > 0.3) {
+          effectiveVel = baseVel * 0.15 + Math.sign(minErr) * speed * 0.85;
+        }
+      } else {
+        // Tier 1: mild side-face bias when ≤2 side faces remain
+        const sideActive = activeIdxs.filter((i) => i !== 2 && i !== 3);
+        if (sideActive.length >= 1 && sideActive.length <= 2) {
+          let minErr = Infinity;
+          for (const fi of sideActive) {
+            const ideal = -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
+            const err =
+              ((((ideal - rotY) % (2 * Math.PI)) + 3 * Math.PI) %
+                (2 * Math.PI)) -
+              Math.PI;
+            if (Math.abs(err) < Math.abs(minErr)) minErr = err;
+          }
+          const steerW = sideActive.length === 1 ? 0.88 : 0.55;
+          if (Math.abs(minErr) > 0.35) {
+            effectiveVel =
+              baseVel * (1 - steerW) + Math.sign(minErr) * 0.22 * steerW;
+          }
+        }
       }
-      // More aggressive steering with 1 face left than 2
-      const steerW = sideActive.length === 1 ? 0.88 : 0.55;
-      if (Math.abs(minErr) > 0.35) {
-        effectiveVel =
-          baseVel * (1 - steerW) + Math.sign(minErr) * 0.22 * steerW;
-      }
+
+      rotVelY += (effectiveVel - rotVelY) * Math.min(1, 8.0 * dt);
+      rotY += rotVelY * dt;
+      cube.rotation.y = rotY;
+
+      // X bias toward whichever top/bottom face is still active
+      const bottomActive = activeIdxs.includes(3);
+      const topActive = activeIdxs.includes(2);
+      const xBias = [0, 0.8, 0.55, 0.3][activeCount] ?? 0;
+      const targetXOffset =
+        bottomActive && !topActive
+          ? xBias
+          : topActive && !bottomActive
+            ? -xBias
+            : 0;
+      xOffset += (targetXOffset - xOffset) * Math.min(1, 3.0 * dt);
+      cube.rotation.x = Math.sin(t * 0.13) * 1.1 + xOffset;
+      cube.rotation.z = Math.sin(t * 0.07) * 0.22 + Math.sin(t * 0.19) * 0.1;
     }
-    rotVelY += (effectiveVel - rotVelY) * Math.min(1, 8.0 * dt);
-    rotY += rotVelY * dt;
-    cube.rotation.y = rotY;
-
-    const bottomActive = activeIdxs.includes(3);
-    const topActive = activeIdxs.includes(2);
-
-    // Bias the oscillation center toward whichever top/bottom face is still active.
-    // Without this, the sine wave stays centered at 0 so top/bottom only ever get
-    // a glancing angle — never a full face-on view. This shifts the whole wave up
-    // (for bottom) or down (for top) so the face tilts properly into view.
-    // Both active at once → no bias, sine visits both equally.
-    // Values are higher now so the bottom actually reaches near face-on (~70°+).
-    const xBias = [0, 0.8, 0.55, 0.3][activeCount] ?? 0;
-    const targetXOffset =
-      bottomActive && !topActive
-        ? xBias
-        : topActive && !bottomActive
-          ? -xBias
-          : 0;
-    xOffset += (targetXOffset - xOffset) * Math.min(1, 3.0 * dt);
-
-    // X — large amplitude sine so bottom and top faces actually reach a proper
-    // viewing angle (1.1 rad ≈ 63°, face dot ~0.89). xOffset biases the center
-    // toward bottom or top when one of them is the last remaining active face.
-    cube.rotation.x = Math.sin(t * 0.13) * 1.1 + xOffset;
-
-    // Z rotation at a third frequency — cube feels like it rolls onto a different axis
-    // periodically. 0.07 vs 0.13 vs 0.31 share no simple ratios so the full combination
-    // takes a very long time to feel repetitive.
-    cube.rotation.z = Math.sin(t * 0.07) * 0.22 + Math.sin(t * 0.19) * 0.1;
   }
 
   /* Rainbow frame + corner color cycling */
