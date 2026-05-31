@@ -168,6 +168,56 @@ Called when you hit "Reset Game." Calls `resetRound()` first, then also sets `to
 
 ---
 
+## Interview Q&A
+
+These are real questions an interviewer might ask. The answers are based on the actual code in this project — not theoretical.
+
+---
+
+**Q: Did you actually implement minimax, or did you use a library?**
+
+*"I implemented it from scratch in `src/app.js`. `minimaxScore` is a recursive function that scores every reachable game state by simulating both players. `minimaxMove` calls it for each empty cell and picks the highest score. No libraries — about 30 lines of vanilla JavaScript."*
+
+---
+
+**Q: What is recursion and where does it appear here?**
+
+*"Recursion is when a function calls itself to solve a smaller version of the same problem. `minimaxScore` calls itself twice per empty cell — once imagining O's move, once imagining X's response. It keeps calling itself until the board is full or someone wins. That's the base case — the condition that stops the recursion. Without a base case it would run forever."*
+
+---
+
+**Q: What's the time complexity of your minimax?**
+
+*"On a 3×3 board the worst case is 9 factorial — 362,880 states — because the first move has 9 options, the second has 8, and so on. In practice it's much less because branches terminate early when a winner is found. For tic-tac-toe this runs in milliseconds. On a larger board like chess it would be completely impractical without pruning."*
+
+**Key term — Time complexity:** A measure of how much slower an algorithm gets as the input grows. Written in Big O notation. O(9!) means the work grows factorially with board size.
+
+---
+
+**Q: How would you make it faster?**
+
+*"Alpha-beta pruning. It's an optimization on minimax that skips branches you already know won't affect the final decision. If you've already found a move that scores +10 for O, and you're currently evaluating a branch where X can force the score below that, you stop — that branch can't be better. It can reduce the number of states evaluated from O(b^d) to O(b^(d/2)), roughly halving the search depth needed for the same result. I didn't implement it here because the 3×3 board is small enough that brute force is instant."*
+
+---
+
+**Q: What is game theory and how does it apply here?**
+
+*"Game theory is the mathematical study of strategic decision-making between competing players. The minimax theorem — proven by John von Neumann in 1928 — states that in any two-player zero-sum game where one player's gain is exactly the other's loss, there is an optimal strategy for both players. Tic-tac-toe is a zero-sum game. The minimax algorithm finds that optimal strategy. The result is that with perfect play from both sides, tic-tac-toe always ends in a draw — it's a solved game."*
+
+---
+
+**Q: Why does the AI get harder as the game goes on instead of starting hard?**
+
+*"Pure minimax from the start would make the game unwinnable immediately, which isn't fun. I used a `difficulty` variable that starts at 0 and increments each time the player wins a face. Each level has a `slop` probability — a chance the AI ignores strategy and plays randomly. At level 0 the slop is 70%, so the AI plays randomly most of the time. By level 4 the slop is 0 and minimax runs unconditionally. This gives the player a chance to learn the game and builds tension as the AI adapts to their skill level."*
+
+---
+
+**Q: How does the difficulty persist across rounds?**
+
+*"`difficulty` is driven by `totalXFaceWins`, a separate counter that never resets between rounds — only the Reset Game button clears it. I split the reset logic into two functions: `resetRound()` clears boards and scores but keeps difficulty, `resetAll()` wipes everything. This was a deliberate design decision — the AI should remember you across rounds so the game stays challenging."*
+
+---
+
 ## One-Line Summaries for Each Function
 
 | Function | What it does |
