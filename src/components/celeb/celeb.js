@@ -225,8 +225,7 @@ function _trigger(winner) {
     : Math.round(rect.left + rect.width / 2 - W / 2);
   _canvas.style.left = centerX + "px";
   _canvas.style.top = Math.round(rect.bottom + 8) + "px";
-  // Do not veil bg-canvas on mobile — the win text is rendered there and
-  // must stay visible. The celeb canvas is a separate overlaid element.
+  if (isMobile) document.getElementById("bg-canvas").style.opacity = "0.15";
   _canvas.style.display = "block";
   _canvas.style.opacity = "0";
   _active = true;

@@ -271,6 +271,16 @@ export function showGameOver(text) {
   if (titleMesh) titleMesh.visible = false;
   if (_font) buildGameOverMesh(text);
   else _pendingGameOver = text;
+  // On mobile the bg-canvas gets dimmed for the celeb animation —
+  // the 3D text lives on that canvas and becomes invisible.
+  // Show a DOM overlay instead so the text is always readable.
+  if (window.innerWidth < 600) {
+    const el = document.getElementById("win-overlay");
+    if (el) {
+      el.textContent = text;
+      el.style.display = "flex";
+    }
+  }
 }
 
 export function hideGameOver() {
@@ -282,6 +292,8 @@ export function hideGameOver() {
   });
   if (_gameOverGroup) _gameOverGroup.visible = false;
   if (titleMesh) titleMesh.visible = true;
+  const el = document.getElementById("win-overlay");
+  if (el) el.style.display = "none";
 }
 
 export function updateTitle(dt, t) {
