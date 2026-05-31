@@ -288,6 +288,7 @@ function doReset() {
   _bgTarget.set(document.body.classList.contains("dark") ? DARK_BG : LIGHT_BG);
   hideGameOver();
   hideCeleb();
+  msgEl.style.display = "";
 }
 
 // Partial reset — keeps difficulty so the AI stays at the earned level
@@ -306,6 +307,7 @@ function doNextRound() {
   _bgTarget.set(document.body.classList.contains("dark") ? DARK_BG : LIGHT_BG);
   hideGameOver();
   hideCeleb();
+  msgEl.style.display = "";
 }
 
 document.getElementById("reset-btn").addEventListener("click", doReset);
@@ -443,6 +445,7 @@ function tick() {
     );
     showGameOver(matchWinner === "draw" ? "DRAW!" : `${matchWinner} WINS!`);
     showCeleb(matchWinner);
+    msgEl.style.display = "none";
   }
   scene.background.lerp(_bgTarget, Math.min(1, dt * 1.2));
 

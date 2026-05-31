@@ -247,8 +247,7 @@ function resizeGameOver() {
   const halfW =
     dist * Math.tan((_camera.fov * Math.PI) / 180 / 2) * _camera.aspect;
   const visibleWidth = halfW * 2;
-  // Same formula as resizeTitle so it occupies the same horizontal footprint
-  const s = Math.min(1.0, (visibleWidth * 0.88) / _gameOverNaturalWidth);
+  const s = (visibleWidth * 0.82) / _gameOverNaturalWidth;
   _gameOverGroup.scale.setScalar(s);
 }
 
