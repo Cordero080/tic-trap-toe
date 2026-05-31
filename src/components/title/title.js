@@ -177,8 +177,17 @@ function buildGameOverMesh(text) {
 
   const group = new THREE.Group();
   let xCursor = 0;
+  let colorIdx = 0;
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
+
+    // Space has no geometry — advance cursor and skip mesh creation
+    if (ch === " ") {
+      xCursor += 1.2;
+      colorIdx++;
+      continue;
+    }
+
     const geo = new TextGeometry(ch, {
       font: _font,
       size: 2.0,
@@ -191,7 +200,8 @@ function buildGameOverMesh(text) {
     geo.computeBoundingBox();
     const w = geo.boundingBox.max.x - geo.boundingBox.min.x;
 
-    const dc = DARK_LETTER_COLORS[i % DARK_LETTER_COLORS.length];
+    const dc = DARK_LETTER_COLORS[colorIdx % DARK_LETTER_COLORS.length];
+    colorIdx++;
     const frontMat = new THREE.MeshStandardMaterial({
       color: dc.front,
       emissive: new THREE.Color(dc.emissive),
@@ -245,11 +255,15 @@ function buildGameOverMesh(text) {
 function resizeGameOver() {
   if (!_camera || !_gameOverGroup || _gameOverNaturalWidth === 0) return;
   const dist = _camera.position.z - _gameOverGroup.position.z;
-  const halfW =
-    dist * Math.tan((_camera.fov * Math.PI) / 180 / 2) * _camera.aspect;
+  const halfFov = (_camera.fov * Math.PI) / 180 / 2;
+  const halfH = dist * Math.tan(halfFov);
+  const halfW = halfH * _camera.aspect;
   const visibleWidth = halfW * 2;
-  const s = (visibleWidth * 0.82) / _gameOverNaturalWidth;
-  _gameOverGroup.scale.setScalar(s);
+  const visibleHeight = halfH * 2;
+  // Constrain by width (75%) and height (20%) — take whichever is smaller
+  const sByWidth = (visibleWidth * 0.75) / _gameOverNaturalWidth;
+  const sByHeight = (visibleHeight * 0.2) / 2.0; // 2.0 matches TextGeometry size
+  _gameOverGroup.scale.setScalar(Math.min(sByWidth, sByHeight));
 }
 
 export function showGameOver(text) {

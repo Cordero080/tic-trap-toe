@@ -8,17 +8,15 @@
 
 ## Current Post
 
-Just pushed a new update to Tic-Trap-Toe.
+Just fixed the match-win screen on Tic-Trap-Toe.
 
-Six boards. One rotating cube. The cube never stops.
+When you win the match, "X WINS!" or "O WINS!" now appears above the cube in full 3D — extruded letters, per-letter colors, fades in smooth.
 
-This isn't normal tic-tac-toe — you can't stall, you can't force a draw. The board you were about to win might spin away before your next move.
+The bug was subtle: TextGeometry returns an empty bounding box for space characters (geometry with no vertices). That poisoned the xCursor calculation with -Infinity, which collapsed the natural width to -Infinity, which zeroed out the scale, which made the text invisible. One line of special-casing for the space glyph and it all clicked.
 
-The cube steers toward remaining unfinished faces. One face left? The rotation locks onto it and holds there with a slow idle drift. Two faces? It cycles between them at double speed.
+Score colors now escalate: dim ghost at 0, teal at 1, violet at 2, amber at 3. Dark mode only — keeps the UI quiet until you actually earn a point.
 
-Light and dark mode now have their own characters. A cat greets you on the landing page in light mode. Switch to dark and the bro takes over. Each character loads on demand — page startup is just one model instead of four.
-
-The AI starts casual and becomes unbeatable as you rack up face wins. Zero build step, zero audio files.
+AI starts casual and ratchets up every time you claim a face. Zero build step, zero audio files.
 
 Play it: [link]
 
@@ -35,6 +33,8 @@ Built with Three.js and vanilla JavaScript.
 
 | Date       | What changed                                                                                                                                                                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-05-30 | Fix "X WINS!" 3D text — space glyph had empty bounding box (-Infinity width), poisoning xCursor and zeroing the scale; skip space as geometry, advance cursor manually; bump SW to v14 |
+| 2026-05-30 | Score colors in dark mode — ghost at 0, teal at 1, violet at 2, amber at 3 via data-score CSS; removed decorative text-shadows; fix tier-2 cube rotation stalling at completed faces; fix light mode background going dark on match win |
 | 2026-05-29 | Lazy-load GLB characters — only the active theme's model loads at startup; inactive theme loads on first toggle; SW no longer caches 27 MB of models; cache drops from ~29 MB to ~2 MB |
 | 2026-05-29 | Full architecture refactor — src/ for JS, public/ for fonts/icons/models/screenshots, CSS split into per-component files; white-celeb.glb for light mode match win; theme toggle on landing page; old flat structure removed |
 | 2026-05-29 | Light mode cat on landing page (greeting-light.glb, Draco-compressed); dark/light characters swap instantly on theme toggle; tiered cube rotation — tier 3 spring-locks onto last face with breath idle, tier 2 2× speed between two remaining; game-over text moves to title position, title hides on match end |
