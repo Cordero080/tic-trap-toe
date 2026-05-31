@@ -132,7 +132,10 @@ function animateScore(winner, onDone) {
     if (frame >= 14) {
       clearInterval(iv);
       el.textContent = target;
+      el.dataset.score = target;
       if (onDone) onDone(el);
+      // Remove score-pop after animation finishes so data-score CSS color takes over
+      setTimeout(() => el.classList.remove("score-pop"), 620);
     } else {
       el.textContent = Math.floor(Math.random() * 10);
     }
@@ -277,6 +280,8 @@ function doReset() {
   scoreOEl.classList.remove("score-match-win");
   scoreXEl.textContent = "0";
   scoreOEl.textContent = "0";
+  scoreXEl.dataset.score = "0";
+  scoreOEl.dataset.score = "0";
   nextRoundBtn.style.display = "none";
   currentRound = 1;
   setRoundLabel();
@@ -293,6 +298,8 @@ function doNextRound() {
   resetCubeVisuals();
   scoreXEl.classList.remove("score-match-win");
   scoreOEl.classList.remove("score-match-win");
+  scoreXEl.dataset.score = "0";
+  scoreOEl.dataset.score = "0";
   nextRoundBtn.style.display = "none";
   currentRound++;
   setRoundLabel();
