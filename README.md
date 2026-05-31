@@ -10,8 +10,6 @@
 
 Six boards. One rotating cube. The cube never stops — faces drift toward you, become playable, then spin away. You don't get to pick which game you're in. First to win 3 faces wins the match.
 
-![Title and cube overview](public/screenshots/title-cube-overview.png)
-
 ---
 
 ## Why it works
@@ -48,10 +46,6 @@ There's no timer. No forced turn order between faces. **If you can see the cells
 - Three shockwave rings burst outward from the tied face surface with additive glow
 - The cube rattles with 5 fast chirped X-axis shakes (gaps between each shake shorten)
 - A soft bass-drum poof fires with short reverb
-
-![Golden win bar](public/screenshots/gold-win-bar.png)
-![Confetti burst](public/screenshots/confetti-face-win.png)
-![Match win score](public/screenshots/match-win-score.jpg)
 
 ---
 
@@ -108,9 +102,6 @@ Toggle the 🌙 button (bottom-left corner). Persists via `localStorage`.
 - **Title** — each letter gets its own color matching the cube palette, lit by a dramatic focused spotlight
 - **Borders** — rainbow cycling preserved, slightly desaturated for elegance
 - **Lighting** — frontal studio spotlight, dimmed ambient, repositioned sun for dramatic depth
-
-![Dark mode gameplay — face won](public/screenshots/Screenshot%202026-05-16%20at%2011.36.11%20PM.png)
-![Dark mode mobile — multi-face progress](public/screenshots/Screenshot%202026-05-16%20at%2011.37.04%20PM.png)
 
 ---
 
