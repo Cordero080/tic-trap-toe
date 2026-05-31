@@ -113,31 +113,17 @@ body.dark .score-num {
   text-shadow: none;
 }
 
-/* Score 1 — electric teal */
 body.dark .score-num[data-score="1"] {
   color: #00e5a0;
-  text-shadow:
-    0 0 10px rgba(0, 229, 160, 0.8),
-    1px 1px 0 rgba(0, 180, 120, 0.5),
-    3px 3px 8px rgba(0, 150, 100, 0.45);
 }
 
-/* Score 2 — hot violet */
 body.dark .score-num[data-score="2"] {
   color: #c060ff;
-  text-shadow:
-    0 0 10px rgba(192, 96, 255, 0.8),
-    1px 1px 0 rgba(140, 40, 200, 0.5),
-    3px 3px 8px rgba(100, 0, 180, 0.45);
 }
 
-/* Score 3 — vivid amber; match-win stripe overrides via -webkit-text-fill-color */
+/* match-win stripe overrides via -webkit-text-fill-color */
 body.dark .score-num[data-score="3"] {
   color: #ff9900;
-  text-shadow:
-    0 0 10px rgba(255, 153, 0, 0.8),
-    1px 1px 0 rgba(200, 100, 0, 0.5),
-    3px 3px 8px rgba(180, 80, 0, 0.45);
 }
 
 /* Match-win score in dark mode — golden glow outline so stripes pop on dark bg */

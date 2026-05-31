@@ -75,13 +75,7 @@
   line-height: 1;
   color: #2d0060;
   display: inline-block;
-  /* stacked 3-D shadow — each layer shifts 1px deeper */
-  text-shadow:
-    1px 1px 0 rgba(45, 0, 96, 0.35),
-    2px 2px 0 rgba(45, 0, 96, 0.28),
-    3px 3px 0 rgba(45, 0, 96, 0.2),
-    4px 4px 0 rgba(45, 0, 96, 0.14),
-    5px 5px 10px rgba(45, 0, 96, 0.3);
+  text-shadow: none;
 }
 
 /* === Score pop / glitch animation === */
