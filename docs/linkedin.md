@@ -8,13 +8,13 @@
 
 ## Current Post
 
-Fixed mobile layering on Tic-Trap-Toe.
+Two fixes on Tic-Trap-Toe mobile.
 
-When you win a match, "X WINS!" appears as 3D extruded text. When you win a round, an animated character plays under your score. On mobile those two things live on different canvas elements — and the cube gets dimmed to 15% opacity to frame the character.
+When you win a match, "X WINS!" appears as 3D extruded text — it renders on the main Three.js canvas. The celebration character renders on its own canvas layered above. Previously the main canvas was dimmed to 15% opacity to give the character visual depth, which made the win text nearly invisible.
 
-Problem: the win text lives on the same canvas as the cube. Dim the canvas, dim the text too.
+Fix 1: stop dimming the whole canvas. Instead give the character canvas a CSS `box-shadow` with a 120px dark halo. The cube behind the character reads as darker without touching canvas opacity — win text stays fully lit.
 
-Fix: keep the dim, add a DOM text overlay at z-index 120 — above the dimmed canvas, below the celeb animation at z-index 150. The gradient text shows over the dim, the character appears in front of it, the cube fades to the back.
+Fix 2: the character animation was auto-fading after the clip finished. Now it holds on the last frame until you click Next Round.
 
 Play it: [link]
 
@@ -31,7 +31,7 @@ Built with Three.js and vanilla JavaScript.
 
 | Date       | What changed                                                                                                                                                                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 2026-05-30 | Fix mobile win text layering — keep bg-canvas dim for celeb, add DOM win-overlay at z-index 120 (above dim, below celeb at 150); gradient CSS text always visible; SW v19 |
+| 2026-05-30 | Fix mobile celeb layering — CSS box-shadow halo on celeb-canvas replaces bg-canvas dim; win text stays fully visible; celeb holds on last frame until Next Round; SW v20 |
 | 2026-05-30 | Fix "X WINS!" 3D text — space glyph had empty bounding box (-Infinity width), poisoning xCursor and zeroing the scale; skip space as geometry, advance cursor manually; bump SW to v14 |
 | 2026-05-30 | Score colors in dark mode — ghost at 0, teal at 1, violet at 2, amber at 3 via data-score CSS; removed decorative text-shadows; fix tier-2 cube rotation stalling at completed faces; fix light mode background going dark on match win |
 | 2026-05-29 | Lazy-load GLB characters — only the active theme's model loads at startup; inactive theme loads on first toggle; SW no longer caches 27 MB of models; cache drops from ~29 MB to ~2 MB |

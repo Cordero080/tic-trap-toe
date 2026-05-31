@@ -225,7 +225,6 @@ function _trigger(winner) {
     : Math.round(rect.left + rect.width / 2 - W / 2);
   _canvas.style.left = centerX + "px";
   _canvas.style.top = Math.round(rect.bottom + 8) + "px";
-  if (isMobile) document.getElementById("bg-canvas").style.opacity = "0.15";
   _canvas.style.display = "block";
   _canvas.style.opacity = "0";
   _active = true;
@@ -238,15 +237,11 @@ function _trigger(winner) {
   requestAnimationFrame(() => {
     _canvas.style.opacity = "1";
   });
-
-  // Fade out 1 second before the clip ends
-  const fadeAt = Math.max((char.clipDuration - 1) * 1000, 500);
-  _fadeTimer = setTimeout(() => _fadeOut(), fadeAt);
+  // No auto-fade — animation stays on last frame until hideCeleb() is called
 }
 
 function _fadeOut() {
   _canvas.style.opacity = "0";
-  document.getElementById("bg-canvas").style.opacity = "1";
   setTimeout(() => {
     _canvas.style.display = "none";
     _active = false;

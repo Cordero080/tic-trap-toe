@@ -53,27 +53,6 @@ body {
   transition: opacity 0.8s ease;
 }
 
-/* === Mobile win text overlay — sits above dimmed bg-canvas, below celeb animation === */
-#win-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  align-items: center;
-  justify-content: center;
-  font-family: "Valorant", "ClashDisplay", sans-serif;
-  font-size: clamp(2.8rem, 12vw, 5rem);
-  font-weight: 900;
-  letter-spacing: 0.05em;
-  background: linear-gradient(135deg, #e04848, #c048b8, #4868d8, #30b8cc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 0 18px rgba(180, 100, 220, 0.7));
-  pointer-events: none;
-  text-align: center;
-}
-
 /* === Board is hidden — Three.js renders it visually === */
 .board {
   display: none;
