@@ -788,12 +788,10 @@ export function updateCube(dt, t) {
         (1 - _lockBlend);
     } else {
       // ── Tier 1 / 2 ────────────────────────────────────────────────────────
-      const speed = tier === 2 ? 0.44 : 0.22;
-      const baseVel = speed * (Math.sign(Math.sin(t * 0.09)) || 1);
-      let effectiveVel = baseVel;
+      let effectiveVel;
 
       if (tier === 2) {
-        // Steer toward whichever of the 2 remaining faces is angularly nearest
+        // Find angular error to nearest of the 2 remaining faces
         let minErr = Infinity;
         for (const fi of activeIdxs) {
           const ideal = -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
@@ -802,10 +800,18 @@ export function updateCube(dt, t) {
             Math.PI;
           if (Math.abs(err) < Math.abs(minErr)) minErr = err;
         }
-        if (Math.abs(minErr) > 0.3) {
-          effectiveVel = baseVel * 0.15 + Math.sign(minErr) * speed * 0.85;
+        // Within 0.35 rad of a face — maintain current direction so the cube
+        // rolls on to the next one instead of stopping or reversing.
+        // Beyond 0.35 rad — steer directly toward the nearest active face.
+        if (Math.abs(minErr) < 0.35) {
+          effectiveVel = (rotVelY >= 0 ? 1 : -1) * 0.44;
+        } else {
+          effectiveVel = Math.sign(minErr) * 0.44;
         }
       } else {
+        const speed = 0.22;
+        const baseVel = speed * (Math.sign(Math.sin(t * 0.09)) || 1);
+        effectiveVel = baseVel;
         // Tier 1: mild side-face bias when ≤2 side faces remain
         const sideActive = activeIdxs.filter((i) => i !== 2 && i !== 3);
         if (sideActive.length >= 1 && sideActive.length <= 2) {

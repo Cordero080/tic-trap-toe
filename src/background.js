@@ -438,7 +438,9 @@ function tick() {
   // Detect match-over transition — fire once when match ends
   if (matchOver && !_wasMatchOver) {
     _wasMatchOver = true;
-    _bgTarget.set(0x141425); // deep purple-navy — noticeable but not pitch-black
+    _bgTarget.set(
+      document.body.classList.contains("dark") ? 0x141425 : 0xe8e4f8,
+    );
     showGameOver(matchWinner === "draw" ? "DRAW!" : `${matchWinner} WINS!`);
     showCeleb(matchWinner);
   }

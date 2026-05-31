@@ -151,12 +151,7 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: none !important;
-  /* Replace dark purple 3-D shadow with a warm golden one so the stripe stays vivid */
-  text-shadow:
-    1px 1px 0 rgba(200, 80, 0, 0.45),
-    2px 2px 0 rgba(180, 60, 0, 0.35),
-    3px 3px 0 rgba(160, 40, 0, 0.25),
-    4px 4px 8px rgba(255, 140, 0, 0.4);
+  text-shadow: none;
 }
 
 /* === Responsive === */
