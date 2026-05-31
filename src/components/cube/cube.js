@@ -805,9 +805,10 @@ export function updateCube(dt, t) {
             (((ideal - rotY) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
           if (fwd < minFwd) minFwd = fwd;
         }
-        // Dwell: reduce speed as we approach the face, back to full speed after.
-        const dwellWin = tier === 2 ? 0.7 : 0.45;
-        const dwellMin = tier === 2 ? 0.5 : 0.78; // fraction of targetVel at face
+        // Dwell: slow dramatically at active face, accelerate away on completed ones.
+        // Tier 2 almost stops at each active face so the player has time to play.
+        const dwellWin = tier === 2 ? 1.1 : 0.5;
+        const dwellMin = tier === 2 ? 0.12 : 0.75; // fraction of targetVel at face center
         if (minFwd < dwellWin) {
           const blend = minFwd / dwellWin; // 0 at face → 1 at window edge
           targetVel *= dwellMin + (1 - dwellMin) * blend;

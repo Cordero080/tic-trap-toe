@@ -260,9 +260,9 @@ function resizeGameOver() {
   const halfW = halfH * _camera.aspect;
   const visibleWidth = halfW * 2;
   const visibleHeight = halfH * 2;
-  // Constrain by width (75%) and height (20%) — take whichever is smaller
-  const sByWidth = (visibleWidth * 0.75) / _gameOverNaturalWidth;
-  const sByHeight = (visibleHeight * 0.2) / 2.0; // 2.0 matches TextGeometry size
+  // Constrain by width (55%) and height (10%) — take whichever is smaller
+  const sByWidth = (visibleWidth * 0.55) / _gameOverNaturalWidth;
+  const sByHeight = (visibleHeight * 0.1) / 2.0; // 2.0 matches TextGeometry size
   _gameOverGroup.scale.setScalar(Math.min(sByWidth, sByHeight));
 }
 
