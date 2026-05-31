@@ -788,51 +788,33 @@ export function updateCube(dt, t) {
         (1 - _lockBlend);
     } else {
       // ── Tier 1 / 2 ────────────────────────────────────────────────────────
-      let effectiveVel;
+      // Always spin in the positive direction — no reversals.
+      // Tier 2 runs at 2× base speed to cycle between 2 remaining faces faster.
+      // Both tiers slow down ("dwell") when approaching an active side face so
+      // the player gets more time there, then speed back up on completed faces.
+      const sideActive = activeIdxs.filter((fi) => fi !== 2 && fi !== 3);
+      let targetVel = tier === 2 ? 0.44 : 0.22;
 
-      if (tier === 2) {
-        // Find angular error to nearest of the 2 remaining faces
-        let minErr = Infinity;
-        for (const fi of activeIdxs) {
+      if (sideActive.length >= 1) {
+        // Forward angular distance to nearest active side face (positive direction).
+        // fwd ∈ [0, 2π]: 0 = we're right at the face, 2π = full cycle away.
+        let minFwd = 2 * Math.PI;
+        for (const fi of sideActive) {
           const ideal = -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
-          const err =
-            ((((ideal - rotY) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) -
-            Math.PI;
-          if (Math.abs(err) < Math.abs(minErr)) minErr = err;
+          const fwd =
+            (((ideal - rotY) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+          if (fwd < minFwd) minFwd = fwd;
         }
-        // Within 0.35 rad of a face — maintain current direction so the cube
-        // rolls on to the next one instead of stopping or reversing.
-        // Beyond 0.35 rad — steer directly toward the nearest active face.
-        if (Math.abs(minErr) < 0.35) {
-          effectiveVel = (rotVelY >= 0 ? 1 : -1) * 0.44;
-        } else {
-          effectiveVel = Math.sign(minErr) * 0.44;
-        }
-      } else {
-        const speed = 0.22;
-        const baseVel = speed * (Math.sign(Math.sin(t * 0.09)) || 1);
-        effectiveVel = baseVel;
-        // Tier 1: mild side-face bias when ≤2 side faces remain
-        const sideActive = activeIdxs.filter((i) => i !== 2 && i !== 3);
-        if (sideActive.length >= 1 && sideActive.length <= 2) {
-          let minErr = Infinity;
-          for (const fi of sideActive) {
-            const ideal = -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
-            const err =
-              ((((ideal - rotY) % (2 * Math.PI)) + 3 * Math.PI) %
-                (2 * Math.PI)) -
-              Math.PI;
-            if (Math.abs(err) < Math.abs(minErr)) minErr = err;
-          }
-          const steerW = sideActive.length === 1 ? 0.88 : 0.55;
-          if (Math.abs(minErr) > 0.35) {
-            effectiveVel =
-              baseVel * (1 - steerW) + Math.sign(minErr) * 0.22 * steerW;
-          }
+        // Dwell: reduce speed as we approach the face, back to full speed after.
+        const dwellWin = tier === 2 ? 0.7 : 0.45;
+        const dwellMin = tier === 2 ? 0.5 : 0.78; // fraction of targetVel at face
+        if (minFwd < dwellWin) {
+          const blend = minFwd / dwellWin; // 0 at face → 1 at window edge
+          targetVel *= dwellMin + (1 - dwellMin) * blend;
         }
       }
 
-      rotVelY += (effectiveVel - rotVelY) * Math.min(1, 8.0 * dt);
+      rotVelY += (targetVel - rotVelY) * Math.min(1, 8.0 * dt);
       rotY += rotVelY * dt;
       cube.rotation.y = rotY;
 
