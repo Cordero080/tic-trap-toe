@@ -53,6 +53,29 @@ body {
   transition: opacity 0.8s ease;
 }
 
+/* === Dark overlay shown during celeb on mobile — dims cube without touching win text === */
+#celeb-dim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.82);
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+/* === Win text canvas — own renderer so it stays above the celeb dim === */
+#win-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: none;
+  pointer-events: none;
+}
+
 /* === Board is hidden — Three.js renders it visually === */
 .board {
   display: none;
@@ -71,6 +94,7 @@ h2 {
   width: 100%;
   text-align: center;
   margin: 0;
+  z-index: 20;
   font-size: 18px;
   font-family: "ClashDisplay", sans-serif;
   font-weight: 600;

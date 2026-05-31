@@ -6,6 +6,7 @@
   width: 100%;
   text-align: center;
   margin: 0;
+  z-index: 20;
   font-family: "ClashDisplay", sans-serif;
   font-weight: 700;
   font-size: 0.9rem;
@@ -51,6 +52,7 @@
   padding: 0 120px;
   box-sizing: border-box;
   pointer-events: none;
+  z-index: 20;
 }
 
 .score-side {

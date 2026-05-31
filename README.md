@@ -12,6 +12,18 @@ Six boards. One rotating cube. The cube never stops — faces drift toward you, 
 
 ---
 
+## Screenshots
+
+| Dark mode — landing | Dark mode — gameplay |
+|---|---|
+| ![Dark mode landing](assets/screenshots/dark-mode-landing.png) | ![Dark mode gameplay](assets/screenshots/dark-mode-confetti.png) |
+
+| Dark mode — draw effect | Light mode — gameplay |
+|---|---|
+| ![Dark mode draw](assets/screenshots/dark-mode-draw.png) | ![Light mode gameplay](assets/screenshots/lightmode-gameplay.png) |
+
+---
+
 ## Why it works
 
 Normal tic-tac-toe ends in a draw every time against anyone paying attention. The rotation kills that. You can't stall, you can't force a draw — the board you were about to win might rotate away before your turn comes back. You'll be mid-game on two or three faces at once, each at a different stage, and you have to decide which one is worth committing to.

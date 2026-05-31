@@ -23,6 +23,32 @@ let _camera = null;
 let _canvas = null;
 let _isDark = true;
 let _shouldBeVisible = false;
+let _lights = null;
+
+function _applyLightMode(dark) {
+  if (!_lights) return;
+  if (dark) {
+    // Dark mode — balanced studio lighting, matches dark cat's existing look
+    _lights.ambient.color.set(0xffffff);
+    _lights.ambient.intensity = 0.7;
+    _lights.key.color.set(0xffffff);
+    _lights.key.intensity = 1.4;
+    _lights.fill.color.set(0x8888ff);
+    _lights.fill.intensity = 0.5;
+    _lights.rim.intensity = 0;
+  } else {
+    // Light mode — low ambient so shadows define the white cat's volume;
+    // warm key from upper-right + cool sky fill + rim from behind
+    _lights.ambient.color.set(0xddeeff);
+    _lights.ambient.intensity = 0.15;
+    _lights.key.color.set(0xfff3d0);
+    _lights.key.intensity = 2.2;
+    _lights.fill.color.set(0x7799cc);
+    _lights.fill.intensity = 0.6;
+    _lights.rim.color.set(0xffffff);
+    _lights.rim.intensity = 0.7;
+  }
+}
 
 // One entry per character: { model, mixer, loaded }
 const _chars = { dark: null, light: null };
@@ -95,13 +121,19 @@ export function initModel() {
   _camera.position.set(0, -0.5, 6);
   _camera.lookAt(0, -0.5, 0);
 
-  _scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+  _scene.add(ambient);
   const key = new THREE.DirectionalLight(0xffffff, 1.4);
   key.position.set(3, 8, 5);
   _scene.add(key);
   const fill = new THREE.DirectionalLight(0x8888ff, 0.5);
   fill.position.set(-3, 2, 3);
   _scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xffffff, 0);
+  rim.position.set(-4, 6, -5);
+  _scene.add(rim);
+
+  _lights = { ambient, key, fill, rim };
 
   window.addEventListener("resize", () => {
     if (!_renderer) return;
@@ -112,6 +144,7 @@ export function initModel() {
 
   // Read initial theme from body class (set before JS runs)
   _isDark = document.body.classList.contains("dark");
+  _applyLightMode(_isDark);
 
   // Only load the active theme's character at startup; load the other on first toggle
   const activeKey = _isDark ? "dark" : "light";
@@ -124,6 +157,7 @@ export function initModel() {
 export function setDarkMode(dark) {
   if (_isDark === dark) return;
   _isDark = dark;
+  _applyLightMode(dark);
 
   const newKey = dark ? "dark" : "light";
   const newPath = dark

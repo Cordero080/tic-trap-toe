@@ -29,6 +29,29 @@ let _active = false;
 let _pendingWinner = null;
 let _fadeTimer = null;
 let _isDark = true;
+let _lights = null;
+
+function _applyLightMode(dark) {
+  if (!_lights) return;
+  if (dark) {
+    _lights.ambient.color.set(0xffffff);
+    _lights.ambient.intensity = 0.7;
+    _lights.key.color.set(0xffffff);
+    _lights.key.intensity = 1.4;
+    _lights.fill.color.set(0x8888ff);
+    _lights.fill.intensity = 0.4;
+    _lights.rim.intensity = 0;
+  } else {
+    _lights.ambient.color.set(0xddeeff);
+    _lights.ambient.intensity = 0.15;
+    _lights.key.color.set(0xfff3d0);
+    _lights.key.intensity = 2.2;
+    _lights.fill.color.set(0x7799cc);
+    _lights.fill.intensity = 0.6;
+    _lights.rim.color.set(0xffffff);
+    _lights.rim.intensity = 0.7;
+  }
+}
 
 // Per-character state — { model, mixer, action, clipDuration, loaded, loading }
 const _dark = {
@@ -167,17 +190,23 @@ export function initCeleb() {
   _scene = new THREE.Scene();
   _camera = new THREE.PerspectiveCamera(55, W / H, 0.1, 100);
 
-  _scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+  _scene.add(ambient);
   const key = new THREE.DirectionalLight(0xffffff, 1.4);
   key.position.set(2, 5, 4);
   _scene.add(key);
   const fill = new THREE.DirectionalLight(0x8888ff, 0.4);
   fill.position.set(-2, 1, 3);
   _scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xffffff, 0);
+  rim.position.set(-2, 6, -4);
+  _scene.add(rim);
+  _lights = { ambient, key, fill, rim };
 
   // Read initial theme from localStorage — body class is always "dark" at parse time
   // (hardcoded for FOUC prevention), so body class is not reliable here
   _isDark = localStorage.getItem("theme_v2") !== "light";
+  _applyLightMode(_isDark);
 
   // Only load the active theme's character at startup; load the other on first toggle
   if (_isDark) {
@@ -189,6 +218,7 @@ export function initCeleb() {
 
 export function setDarkMode(dark) {
   _isDark = dark;
+  _applyLightMode(dark);
   // Lazy-load the other theme's character on first toggle; loading flag prevents duplicates
   if (dark) {
     _loadChar(_dark, "/public/models/bro-celeb.glb");
@@ -225,6 +255,10 @@ function _trigger(winner) {
     : Math.round(rect.left + rect.width / 2 - W / 2);
   _canvas.style.left = centerX + "px";
   _canvas.style.top = Math.round(rect.bottom + 8) + "px";
+  if (isMobile) {
+    const dim = document.getElementById("celeb-dim");
+    if (dim) dim.style.display = "block";
+  }
   _canvas.style.display = "block";
   _canvas.style.opacity = "0";
   _active = true;
@@ -237,11 +271,16 @@ function _trigger(winner) {
   requestAnimationFrame(() => {
     _canvas.style.opacity = "1";
   });
-  // No auto-fade — animation stays on last frame until hideCeleb() is called
+
+  // Fade out when the clip finishes playing
+  const fadeAt = Math.max(char.clipDuration * 1000, 1000);
+  _fadeTimer = setTimeout(() => _fadeOut(), fadeAt);
 }
 
 function _fadeOut() {
   _canvas.style.opacity = "0";
+  const dim = document.getElementById("celeb-dim");
+  if (dim) dim.style.display = "none";
   setTimeout(() => {
     _canvas.style.display = "none";
     _active = false;

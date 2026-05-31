@@ -35,6 +35,10 @@ let _titleNaturalWidth = 0; // bounding-box width at scale=1
 let _scene = null;
 let _font = null; // cached font for game-over text reuse
 
+// Separate renderer/scene for win text so it sits above the celeb dim overlay
+let _winRenderer = null;
+let _winScene = null;
+
 // Game-over text state
 let _gameOverGroup = null;
 let _gameOverMats = [];
@@ -88,6 +92,27 @@ export function initTitle(scene, camera) {
   shaper.position.set(12, 18, 20);
   scene.add(shaper);
   _titleShaper = shaper;
+
+  // Win-text gets its own renderer + scene so it renders above the celeb dim overlay.
+  // The camera is shared — Three.js cameras are plain data and safe to reuse.
+  const winCanvas = document.getElementById("win-canvas");
+  if (winCanvas) {
+    _winRenderer = new THREE.WebGLRenderer({
+      canvas: winCanvas,
+      antialias: true,
+      alpha: true,
+    });
+    _winRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    _winRenderer.setSize(window.innerWidth, window.innerHeight);
+    _winScene = new THREE.Scene();
+    _winScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const wKey = new THREE.DirectionalLight(0xddccff, 2.2);
+    wKey.position.set(12, 18, 20);
+    _winScene.add(wKey);
+    const wRim = new THREE.DirectionalLight(0xffffff, 1.2);
+    wRim.position.set(-18, 4, 10);
+    _winScene.add(wRim);
+  }
 
   const fontLoader = new FontLoader();
   fontLoader.load(
@@ -168,7 +193,7 @@ export function initTitle(scene, camera) {
 /* ── buildGameOverMesh — creates the 3-D "X WINS!" / "DRAW!" overlay ── */
 function buildGameOverMesh(text) {
   if (_gameOverGroup) {
-    _scene.remove(_gameOverGroup);
+    (_winScene || _scene).remove(_gameOverGroup);
     _gameOverGroup = null;
   }
   _gameOverMats = [];
@@ -240,7 +265,7 @@ function buildGameOverMesh(text) {
   group.position.set(0, 10, 2);
   group.rotation.x = 0.22;
   _gameOverGroup = group;
-  _scene.add(group);
+  (_winScene || _scene).add(group);
 
   // Measure BEFORE hiding — Box3.setFromObject skips invisible objects
   const goBox = new THREE.Box3().setFromObject(group);
@@ -271,6 +296,8 @@ export function showGameOver(text) {
   if (titleMesh) titleMesh.visible = false;
   if (_font) buildGameOverMesh(text);
   else _pendingGameOver = text;
+  const wc = document.getElementById("win-canvas");
+  if (wc) wc.style.display = "block";
 }
 
 export function hideGameOver() {
@@ -282,6 +309,8 @@ export function hideGameOver() {
   });
   if (_gameOverGroup) _gameOverGroup.visible = false;
   if (titleMesh) titleMesh.visible = true;
+  const wc = document.getElementById("win-canvas");
+  if (wc) wc.style.display = "none";
 }
 
 export function updateTitle(dt, t) {
@@ -302,6 +331,10 @@ export function updateTitle(dt, t) {
       _gameOverGroup.position.y = 10 + Math.sin(t * 1.1) * 0.18;
     }
   }
+
+  if (_winRenderer && _winScene && _camera) {
+    _winRenderer.render(_winScene, _camera);
+  }
 }
 
 export function resizeTitle() {
@@ -313,6 +346,7 @@ export function resizeTitle() {
   const s = Math.min(1.0, (visibleWidth * 0.88) / _titleNaturalWidth);
   titleMesh.scale.setScalar(s);
   resizeGameOver();
+  if (_winRenderer) _winRenderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 /* ── setDarkMode — per-letter colors + dramatic spotlight in dark mode ── */
