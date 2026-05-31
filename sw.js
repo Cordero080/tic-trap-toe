@@ -60,7 +60,13 @@ self.addEventListener("fetch", (event) => {
   if (url.pathname.startsWith("/public/models/")) return;
 
   if (url.origin === self.location.origin) {
-    event.respondWith(cacheFirst(event.request));
+    // JS and CSS: network-first so deploys are picked up immediately.
+    // HTML, manifest, icons: cache-first for fast shell load.
+    const p = url.pathname;
+    const isCode = p.endsWith(".js") || p.endsWith(".css");
+    event.respondWith(
+      isCode ? networkFirst(event.request) : cacheFirst(event.request),
+    );
   } else {
     event.respondWith(networkFirst(event.request));
   }
