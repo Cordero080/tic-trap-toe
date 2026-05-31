@@ -1,4 +1,4 @@
-const CACHE_NAME = "tic-trap-toe-v16";
+const CACHE_NAME = "tic-trap-toe-v17";
 
 const LOCAL_ASSETS = [
   "/",

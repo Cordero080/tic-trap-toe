@@ -109,6 +109,7 @@ let _lockBlend = 0; // 0 = free spin, 1 = fully locked onto last face
 // bottom face when one of them is the last remaining active face.
 // Positive = tilt toward bottom face, negative = tilt toward top face.
 let xOffset = 0;
+const _tmpN = new THREE.Vector3(); // reusable — avoid per-frame allocation
 
 /* ── Dark-mode material refs — set by initCube, toggled by setDarkMode ── */
 let _cubeFaceMats = null; // array of 6 MeshStandardMaterials (one per box face)
@@ -788,33 +789,26 @@ export function updateCube(dt, t) {
         (1 - _lockBlend);
     } else {
       // ── Tier 1 / 2 ────────────────────────────────────────────────────────
-      // Always spin in the positive direction — no reversals.
-      // Tier 2 runs at 2× base speed to cycle between 2 remaining faces faster.
-      // Both tiers slow down ("dwell") when approaching an active side face so
-      // the player gets more time there, then speed back up on completed faces.
-      const sideActive = activeIdxs.filter((fi) => fi !== 2 && fi !== 3);
-      let targetVel = tier === 2 ? 0.44 : 0.22;
+      // Rule: look at which SIDE face is currently most toward the camera.
+      //   • That face is active (unfinished) → slow down, let the player play.
+      //   • That face is complete            → speed up, move past it fast.
+      // Direction never reverses — rotY only ever increases.
+      const FAST = tier === 2 ? 0.44 : 0.22;
+      const SLOW = tier === 2 ? 0.05 : 0.14;
 
-      if (sideActive.length >= 1) {
-        // Forward angular distance to nearest active side face (positive direction).
-        // fwd ∈ [0, 2π]: 0 = we're right at the face, 2π = full cycle away.
-        let minFwd = 2 * Math.PI;
-        for (const fi of sideActive) {
-          const ideal = -Math.atan2(NORMALS[fi].x, NORMALS[fi].z);
-          const fwd =
-            (((ideal - rotY) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-          if (fwd < minFwd) minFwd = fwd;
-        }
-        // Dwell: slow dramatically at active face, accelerate away on completed ones.
-        // Tier 2 almost stops at each active face so the player has time to play.
-        const dwellWin = tier === 2 ? 1.1 : 0.5;
-        const dwellMin = tier === 2 ? 0.12 : 0.75; // fraction of targetVel at face center
-        if (minFwd < dwellWin) {
-          const blend = minFwd / dwellWin; // 0 at face → 1 at window edge
-          targetVel *= dwellMin + (1 - dwellMin) * blend;
+      // Find which side face (front/back/left/right) is most toward the camera.
+      // Top/bottom are governed by X rotation; we only check the Y-axis faces.
+      let maxCamZ = -Infinity;
+      let facingFi = 0;
+      for (const fi of [0, 1, 4, 5]) {
+        _tmpN.copy(NORMALS[fi]).applyQuaternion(cube.quaternion);
+        if (_tmpN.z > maxCamZ) {
+          maxCamZ = _tmpN.z;
+          facingFi = fi;
         }
       }
 
+      const targetVel = faceStates[facingFi].winner ? FAST : SLOW;
       rotVelY += (targetVel - rotVelY) * Math.min(1, 8.0 * dt);
       rotY += rotVelY * dt;
       cube.rotation.y = rotY;
