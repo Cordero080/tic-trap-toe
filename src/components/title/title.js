@@ -228,16 +228,17 @@ function buildGameOverMesh(text) {
   });
 
   group.position.set(0, 10, 2);
-  group.rotation.x = 0.22; // match title tilt
-  group.visible = false;
+  group.rotation.x = 0.22;
   _gameOverGroup = group;
   _scene.add(group);
 
+  // Measure BEFORE hiding — Box3.setFromObject skips invisible objects
   const goBox = new THREE.Box3().setFromObject(group);
   _gameOverNaturalWidth = goBox.max.x - goBox.min.x;
   resizeGameOver();
 
-  // Hide the title so game-over text takes its place cleanly
+  group.visible = false; // materials are opacity:0 so nothing flashes
+
   if (titleMesh) titleMesh.visible = false;
 }
 
