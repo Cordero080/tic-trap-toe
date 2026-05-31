@@ -133,9 +133,8 @@ function animateScore(winner, onDone) {
       clearInterval(iv);
       el.textContent = target;
       el.dataset.score = target;
+      el.classList.remove("score-pop");
       if (onDone) onDone(el);
-      // Remove score-pop after animation finishes so data-score CSS color takes over
-      setTimeout(() => el.classList.remove("score-pop"), 620);
     } else {
       el.textContent = Math.floor(Math.random() * 10);
     }
