@@ -16,6 +16,7 @@
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader";
 
 const W = 260;
 const H = 520;
@@ -29,13 +30,14 @@ let _pendingWinner = null;
 let _fadeTimer = null;
 let _isDark = true;
 
-// Per-character state — { model, mixer, action, clipDuration, loaded }
+// Per-character state — { model, mixer, action, clipDuration, loaded, loading }
 const _dark = {
   model: null,
   mixer: null,
   action: null,
   clipDuration: 0,
   loaded: false,
+  loading: false,
 };
 const _light = {
   model: null,
@@ -43,6 +45,7 @@ const _light = {
   action: null,
   clipDuration: 0,
   loaded: false,
+  loading: false,
 };
 
 function _char() {
@@ -81,8 +84,20 @@ function _placeModel(model, char) {
   }
 }
 
-function _loadChar(charObj, path) {
+function _makeLoader() {
+  const draco = new DRACOLoader();
+  draco.setDecoderPath(
+    "https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/",
+  );
   const loader = new GLTFLoader();
+  loader.setDRACOLoader(draco);
+  return loader;
+}
+
+function _loadChar(charObj, path) {
+  if (charObj.loading || charObj.loaded) return;
+  charObj.loading = true;
+  const loader = _makeLoader();
   loader.load(
     path,
     (gltf) => {
@@ -160,8 +175,9 @@ export function initCeleb() {
   fill.position.set(-2, 1, 3);
   _scene.add(fill);
 
-  // Read initial theme from body class
-  _isDark = document.body.classList.contains("dark");
+  // Read initial theme from localStorage — body class is always "dark" at parse time
+  // (hardcoded for FOUC prevention), so body class is not reliable here
+  _isDark = localStorage.getItem("theme_v2") !== "light";
 
   // Only load the active theme's character at startup; load the other on first toggle
   if (_isDark) {
@@ -173,10 +189,10 @@ export function initCeleb() {
 
 export function setDarkMode(dark) {
   _isDark = dark;
-  // Lazy-load the other theme's character on first toggle
-  if (dark && !_dark.loaded && !_dark.model) {
+  // Lazy-load the other theme's character on first toggle; loading flag prevents duplicates
+  if (dark) {
     _loadChar(_dark, "/public/models/bro-celeb.glb");
-  } else if (!dark && !_light.loaded && !_light.model) {
+  } else {
     _loadChar(_light, "/public/models/white-celeb.glb");
   }
 }
@@ -246,6 +262,7 @@ export function hideCeleb() {
     clearTimeout(_fadeTimer);
     _fadeTimer = null;
   }
+  _pendingWinner = null;
   _fadeOut();
 }
 
