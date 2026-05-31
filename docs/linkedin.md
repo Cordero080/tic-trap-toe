@@ -8,15 +8,13 @@
 
 ## Current Post
 
-Just fixed the match-win screen on Tic-Trap-Toe.
+Fixed a mobile visibility bug on Tic-Trap-Toe.
 
-When you win the match, "X WINS!" or "O WINS!" now appears above the cube in full 3D — extruded letters, per-letter colors, fades in smooth.
+When you win a round, an animated 3D character appears under your score. On mobile it was dimming the entire Three.js canvas to 15% opacity to give the character visual breathing room — but that same canvas also renders the "X WINS!" match-win text, so the win screen was nearly invisible.
 
-The bug was subtle: TextGeometry returns an empty bounding box for space characters (geometry with no vertices). That poisoned the xCursor calculation with -Infinity, which collapsed the natural width to -Infinity, which zeroed out the scale, which made the text invisible. One line of special-casing for the space glyph and it all clicked.
+The fix: the celebration animation already lives on its own separate canvas element layered above the main scene. No dimming needed.
 
-Score colors now escalate: dim ghost at 0, teal at 1, violet at 2, amber at 3. Dark mode only — keeps the UI quiet until you actually earn a point.
-
-AI starts casual and ratchets up every time you claim a face. Zero build step, zero audio files.
+One line removed, win text fully visible on mobile.
 
 Play it: [link]
 
@@ -33,6 +31,7 @@ Built with Three.js and vanilla JavaScript.
 
 | Date       | What changed                                                                                                                                                                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-05-30 | Fix mobile win text hidden by celeb veil — remove bg-canvas opacity dim on mobile; celeb is already on separate canvas overlay; bump SW to v18 |
 | 2026-05-30 | Fix "X WINS!" 3D text — space glyph had empty bounding box (-Infinity width), poisoning xCursor and zeroing the scale; skip space as geometry, advance cursor manually; bump SW to v14 |
 | 2026-05-30 | Score colors in dark mode — ghost at 0, teal at 1, violet at 2, amber at 3 via data-score CSS; removed decorative text-shadows; fix tier-2 cube rotation stalling at completed faces; fix light mode background going dark on match win |
 | 2026-05-29 | Lazy-load GLB characters — only the active theme's model loads at startup; inactive theme loads on first toggle; SW no longer caches 27 MB of models; cache drops from ~29 MB to ~2 MB |
